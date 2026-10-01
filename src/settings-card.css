@@ -1,0 +1,88 @@
+.settings-card {
+  --field-background: var(--default);
+  flex: none;
+  gap: 10px;
+  border-radius: 20px;
+  padding: 14px;
+}
+.settings-card .card__description {
+  font-size: 12px;
+  line-height: 16px;
+}
+.settings-card .card__content {
+  flex: none;
+}
+.settings-row {
+  display: grid;
+  min-width: 0;
+  align-items: center;
+  gap: 2px 12px;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+.settings-row__title {
+  grid-row: 1;
+  grid-column: 1;
+  min-width: 0;
+}
+.settings-row__control {
+  grid-row: 1;
+  grid-column: 2;
+  justify-self: end;
+  min-width: 0;
+}
+.settings-row__hint {
+  grid-row: 2;
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+.settings-row[data-stacked] {
+  grid-template-columns: minmax(0, 1fr);
+}
+.settings-row[data-stacked] .settings-row__control {
+  grid-row: 3;
+  grid-column: 1;
+  justify-self: stretch;
+  margin-top: 6px;
+}
+.settings-row[data-stacked] .settings-row__control .textarea {
+  width: 100%;
+}
+.settings-card--tight {
+  --field-background: var(--surface);
+  --default: var(--surface);
+  --default-hover: color-mix(
+    in oklab,
+    var(--surface) 94%,
+    var(--foreground) 6%
+  );
+  --default-soft: var(--surface);
+  gap: 8px;
+  border-radius: 16px;
+  padding: 12px;
+}
+.task-id {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.85em;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.settings-stepper {
+  display: grid;
+  align-items: center;
+  gap: 8px;
+  grid-template-columns: 8.5rem 1.75rem 2rem;
+}
+@media (min-width: 64rem) {
+  .settings-stepper {
+    grid-template-columns: 9.5rem 1.75rem 2rem;
+  }
+}
+.settings-stepper__clear {
+  display: inline-flex;
+  justify-content: flex-end;
+  min-width: 0;
+}
+.settings-caution {
+  color: var(--warning);
+}

@@ -1,0 +1,26 @@
+# TLS and routing for a self-hosted Wireal (docker-compose.yml).
+#
+# Caddy obtains and renews a certificate for each host from Let's Encrypt.
+# Names under .localhost get one from Caddy's own local authority instead,
+# which a browser trusts only once that authority is installed (see README).
+
+{$WIREAL_APP_HOST} {
+	encode zstd gzip
+	reverse_proxy web:8080
+}
+
+{$WIREAL_API_HOST} {
+	reverse_proxy api:8080 {
+		# The API keys rate limits and logs on this header, and trusts it only
+		# from this container's fixed address (Security__KnownProxies__0).
+		# Setting it here replaces anything a client sent.
+		header_up CF-Connecting-IP {remote_host}
+	}
+}
+
+{$WIREAL_MCP_HOST} {
+	reverse_proxy mcp:8787 {
+		# Server-sent events must reach the client as they are written.
+		flush_interval -1
+	}
+}

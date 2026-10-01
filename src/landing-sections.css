@@ -1,0 +1,633 @@
+/* The sections the landing page grew in round four, and the frame parts they
+   share with the page: the rails, the corner markers, the pixel ornament and
+   the reveal. Everything is drawn from the page's three tones and its one line
+   colour, so a section never states a colour of its own. */
+
+/* ---- Frame --------------------------------------------------------------- */
+
+/* The rails. One pixel wide, the whole page tall, drawn as a dash rather than
+   a hairline: a two-stop gradient at a background-size of 1px 32px is a 16px
+   mark over a 16px gap — the page's one rhythm, the same one the horizontal
+   section lines carry turned ninety degrees. They ride above the sections
+   because a tone is opaque and a rail beneath one would only show where
+   nothing was painted. */
+.landing-rails {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  pointer-events: none;
+}
+.landing-rail {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background-image: linear-gradient(var(--landing-line) 50%, transparent 50%);
+  background-size: 1px 32px;
+}
+/* The inner pair sits on the column's own edges: at full width that is 600px
+   either side of centre, and below 1200px it is the viewport edge. */
+.landing-rail--inner-start {
+  left: calc(50% - var(--landing-half));
+}
+.landing-rail--inner-end {
+  right: calc(50% - var(--landing-half));
+}
+/* The outer pair only exists where there is room for it to read as a margin
+   rather than as a second frame. */
+.landing-rail--outer {
+  display: none;
+}
+.landing-rail--outer-start {
+  left: var(--landing-outer);
+}
+.landing-rail--outer-end {
+  right: var(--landing-outer);
+}
+@media (min-width: 1280px) {
+  .landing-rail--outer {
+    display: block;
+  }
+}
+
+/* A marker: a 14px square on the line's own colour, filled with the tone of the
+   section it sits on, centred on the joint it marks. It keeps a three-pixel
+   corner — the deliberate answer to a rounded page drawn with square hardware.
+   The marker stays a square, because a joint mark that had become a dot would
+   stop reading as one, but it is softened rather than left as the one raw
+   right angle on a sheet of rounded boxes. The rails and the section lines it
+   sits on are lines, so there is nothing there to round. */
+.landing-mark,
+.landing-section::before,
+.landing-section::after,
+.landing-column::before,
+.landing-column::after {
+  position: absolute;
+  z-index: 4;
+  width: var(--landing-mark);
+  height: var(--landing-mark);
+  border: 1px solid var(--landing-line);
+  border-radius: var(--landing-corner-mark);
+  background: var(--landing-tone);
+  pointer-events: none;
+}
+/* Where a cell divider meets the section's edges. The span is the divider's
+   own line of travel; the two squares are its ends. */
+.landing-divider-marks {
+  position: absolute;
+  z-index: 4;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  pointer-events: none;
+}
+.landing-mark--top {
+  top: 0;
+  left: 0;
+  transform: translate(-50%, -50%);
+}
+.landing-mark--bottom {
+  bottom: 0;
+  left: 0;
+  transform: translate(-50%, 50%);
+}
+
+/* ---- Reveal -------------------------------------------------------------- */
+
+/* Blocks rise into place once. The armed attribute comes from script, so
+   without it — no script, or a visitor who asked for less motion — every block
+   is already in its finished state and nothing is ever hidden. */
+@media (prefers-reduced-motion: no-preference) {
+  .landing[data-reveal-armed] [data-reveal] {
+    opacity: 0;
+    transform: translateY(12px);
+    transition:
+      opacity 620ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: calc(var(--reveal-i, 0) * 60ms);
+  }
+  .landing[data-reveal-armed] [data-reveal][data-revealed] {
+    opacity: 1;
+    transform: none;
+  }
+  /* A marker grows into its joint as its section arrives. Only a section
+     that has something to reveal is ever "not yet revealed": the header, the
+     hero, the showcase and the foot carry no reveal blocks, and their markers
+     would otherwise wait at the small size for an arrival that never comes. */
+  .landing[data-reveal-armed] .landing-mark,
+  .landing[data-reveal-armed] .landing-section::before,
+  .landing[data-reveal-armed] .landing-section::after {
+    transition: transform 460ms cubic-bezier(0.22, 1, 0.36, 1) 120ms;
+  }
+  .landing[data-reveal-armed]
+    .landing-section:has([data-reveal]):not(:has([data-revealed]))::before {
+    transform: translate(calc(-50% + 0.5px), 50%) scale(0.6);
+  }
+  .landing[data-reveal-armed]
+    .landing-section:has([data-reveal]):not(:has([data-revealed]))::after {
+    transform: translate(calc(50% - 0.5px), 50%) scale(0.6);
+  }
+  .landing[data-reveal-armed]
+    .landing-section:has([data-reveal]):not(:has([data-revealed]))
+    .landing-mark--top {
+    transform: translate(-50%, -50%) scale(0.6);
+  }
+  .landing[data-reveal-armed]
+    .landing-section:has([data-reveal]):not(:has([data-revealed]))
+    .landing-mark--bottom {
+    transform: translate(-50%, 50%) scale(0.6);
+  }
+  /* The rails draw down from the top on first paint. Clipping moves no layout:
+     the rails keep their box the whole way. */
+  .landing-rail {
+    animation: landing-rail-draw 900ms cubic-bezier(0.33, 1, 0.68, 1) both;
+  }
+}
+@keyframes landing-rail-draw {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* ---- Work as a team ------------------------------------------------------ */
+
+.landing-split {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr);
+  gap: 40px;
+  align-items: start;
+}
+.landing-split__text {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+/* A sub-panel: the free-standing box the reference draws inside a field. A
+   dashed hairline at the eight-pixel corner, one step of ground above whatever
+   the band it stands on is painted from — so the same rule works on the stage
+   and on a raised band — and a marker straddling each of its four corners. The
+   marks are told the panel's own fill rather than the section's, because a
+   marker is filled with the ground it sits on. */
+.landing-panel,
+.landing-kind__stage {
+  --landing-fill: color-mix(in srgb, var(--foreground) 4%, var(--landing-tone));
+  position: relative;
+  border: 1px dashed var(--landing-line);
+  border-radius: 8px;
+  background: var(--landing-fill);
+}
+.landing-panel > .landing-divider-marks,
+.landing-kind__stage > .landing-divider-marks {
+  --landing-tone: var(--landing-fill);
+}
+
+/* Three rows, each carrying its icon in the reference's small dashed tile. */
+.landing-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 26px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.landing-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--foreground);
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+.landing-row__glyph {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  place-items: center;
+  border: 1px dashed var(--landing-line);
+  border-radius: 6px;
+  color: var(--muted);
+}
+
+/* The panel: one real task card over the feed that follows it, in the
+   sub-panel the band beside it is contained by. */
+.landing-panel {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+}
+.landing-panel__card {
+  width: 100%;
+}
+.landing-assignees {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.landing-assignees__label {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.landing-assignees__faces {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+/* Every face is one size, whether it is a set of initials or an agent's
+   avatar. The agent's own avatar states its edge, because ChatGPT's is very
+   nearly the light theme's card and Codex's is very nearly the dark theme's. */
+.landing-face {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  flex: none;
+  place-items: center;
+  border-radius: 999px;
+}
+.landing-face--agent .activity-bloub {
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--foreground) 18%, transparent);
+}
+.landing-face--person {
+  font-size: 10px;
+}
+
+.landing-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.landing-feed__label {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.landing-feed__list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+/* Every row keeps its height whether its line has been typed or not, so the
+   feed never resizes under a reader. */
+.landing-feed__row {
+  display: flex;
+  min-height: 24px;
+  align-items: center;
+  gap: 10px;
+}
+.landing-feed__row .landing-face {
+  width: 20px;
+  height: 20px;
+}
+.landing-feed__text {
+  display: block;
+  overflow: hidden;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.5;
+  white-space: nowrap;
+  text-overflow: clip;
+}
+
+/* One line at a time, typed by a step animation across its own width and then
+   held until the loop returns to it. No clock runs in script. */
+/* An entry arrives whole — its face and its line together — and is then typed
+   out; both read the same 14.4s clock and the same place in it, so the six
+   never drift apart: one entry every two seconds, six of them, then round
+   again. */
+@media (prefers-reduced-motion: no-preference) {
+  .landing-feed__text {
+    max-width: 0;
+    border-inline-end: 1px solid var(--accent);
+    animation: landing-type 12s steps(var(--feed-chars, 30)) infinite both;
+    animation-delay: calc(var(--feed-i) * 2s);
+  }
+  .landing-feed__row {
+    animation: landing-feed-arrive 12s linear infinite both;
+    animation-delay: calc(var(--feed-i) * 2s);
+  }
+}
+@keyframes landing-feed-arrive {
+  0% {
+    opacity: 0;
+  }
+  1%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes landing-type {
+  0% {
+    max-width: 0;
+    border-inline-end-color: var(--accent);
+  }
+  10% {
+    max-width: 100%;
+    border-inline-end-color: var(--accent);
+  }
+  11.7% {
+    max-width: 100%;
+    border-inline-end-color: transparent;
+  }
+  100% {
+    max-width: 100%;
+    border-inline-end-color: transparent;
+  }
+}
+
+/* ---- Two kinds of workspace ---------------------------------------------- */
+
+/* Two fields of one row, told apart by a solid line meeting the rails and
+   marked at both of its ends, the way the reference splits a band in two. */
+.landing-kinds__grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 32px calc(var(--landing-gutter) * -1) 0;
+  border-top: 1px solid var(--landing-line);
+}
+/* Two columns inside the field: the drawing in its own sub-panel on the left,
+   the words beside it, the pair centred against each other. */
+.landing-kind {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 24px;
+  align-items: center;
+  padding: 32px;
+}
+.landing-kind:not(:last-child) {
+  border-inline-end: 1px solid var(--landing-line);
+}
+/* The sub-panel leads with the drawing the picker shows on its cards, at a size
+   the page can afford. It starts still and only begins looping once the panel
+   has arrived, so nothing moves below the fold; a visitor who asked for less
+   motion never arms the reveal, and the drawing simply stays at rest. */
+.landing-kind__stage {
+  display: grid;
+  place-items: center;
+  padding: 14px;
+}
+/* The drawing states its width as a fraction of the viewport it is given, which
+   a grid track cannot resolve while it is still deciding how wide to be: asked
+   for its widest, the column answered with far more than the drawing and took
+   the room the words needed. Here the height it was handed is the width, and
+   the fraction is only the cap that keeps it inside a narrow panel. */
+.landing-kind__stage .wk-art {
+  width: calc(var(--wk-art-h, 88px) * 1.32);
+  max-width: 100%;
+}
+.landing-kind__text {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 10px;
+}
+.landing-kind[data-revealed] .wk-art {
+  --wk-run: running;
+}
+.landing:not([data-reveal-armed]) .landing-kind .wk-art {
+  --wk-run: running;
+}
+.landing-kind__title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.landing-kind__points {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.landing-kind__points li {
+  position: relative;
+  padding-inline-start: 16px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.landing-kind__points li::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  inset-inline-start: 0;
+  width: 6px;
+  height: 6px;
+  border: 1px solid var(--landing-line);
+  border-radius: var(--landing-corner-mark);
+}
+
+/* ---- One server ---------------------------------------------------------- */
+
+/* The copy reads down one column and the terminal stands beside it, the way
+   the tools are actually met: a line you paste, and the answer in the window
+   you pasted it into. */
+.landing-mcp__grid {
+  display: grid;
+  min-width: 0;
+  align-items: start;
+  gap: 40px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+}
+.landing-mcp__copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 14px;
+}
+.landing-mcp__points {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.landing-mcp__point {
+  display: grid;
+  min-width: 0;
+  align-items: baseline;
+  gap: 0 14px;
+  grid-template-columns: auto minmax(0, 1fr);
+  border-top: 1px solid var(--landing-line);
+  padding: 16px 0;
+}
+.landing-mcp__index {
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+.landing-mcp__point-body {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+}
+.landing-mcp__point-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+.landing-mcp__point-text {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 21px;
+  text-wrap: pretty;
+}
+
+/* The terminal keeps its own dark whatever the page is wearing, because that
+   is what the window looks like on the machine the runner is on. */
+.landing-terminal {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: #000;
+  box-shadow:
+    0 1px 0 0 rgb(255 255 255 / 0.06) inset,
+    0 24px 60px rgb(0 0 0 / 0.28);
+}
+/* A black window on a light page is a terminal. On a dark page it is a hole,
+   so there it takes an edge and a cool glow to sit on instead of a shadow the
+   page cannot show. */
+[data-theme="dark"] .landing-terminal {
+  border-color: rgb(255 255 255 / 0.14);
+  box-shadow:
+    0 1px 0 0 rgb(255 255 255 / 0.06) inset,
+    0 18px 56px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+.landing-terminal__bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid rgb(255 255 255 / 0.1);
+  padding: 10px 14px;
+}
+.landing-terminal__lights {
+  display: flex;
+  flex: none;
+  gap: 6px;
+}
+.landing-terminal__lights span {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.18);
+}
+.landing-terminal__title {
+  color: rgb(255 255 255 / 0.55);
+  font-size: 12px;
+}
+.landing-terminal__body {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  overflow-x: auto;
+  margin: 0;
+  padding: 16px 14px 18px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  line-height: 22px;
+}
+.landing-terminal__line {
+  color: #fff;
+  white-space: pre;
+}
+.landing-terminal__line[data-tone="command"] {
+  color: #fff;
+  font-weight: 600;
+}
+.landing-terminal__line[data-tone="muted"],
+.landing-terminal__line[data-tone="dim"] {
+  color: rgb(255 255 255 / 0.72);
+}
+.landing-terminal__line[data-tone="head"] {
+  color: rgb(255 255 255 / 0.55);
+}
+.landing-terminal__line[data-tone="good"] {
+  color: #5ef08a;
+}
+.landing-terminal__prompt {
+  margin-inline-end: 8px;
+  color: #f59e0b;
+}
+
+/* ---- Narrow -------------------------------------------------------------- */
+
+@media (max-width: 1023px) {
+  .landing-split {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+  /* Two fields side by side leave each one too narrow to read the drawing and
+     the words across, so the pair goes one to a row and the line that divided
+     the columns becomes the one between the rows. */
+  .landing-kinds__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .landing-kind:not(:last-child) {
+    border-inline-end: 0;
+  }
+  .landing-kind + .landing-kind {
+    border-top: 1px solid var(--landing-line);
+  }
+}
+@media (max-width: 719px) {
+  /* No room for two columns inside a field on a phone, so the drawing goes
+     back above the words. The sub-panels keep their border and their four
+     marks, which are the one part of the frame a phone still has room for. */
+  .landing-kind {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    padding: 24px var(--landing-gutter);
+  }
+  .landing-kind__stage {
+    padding: 12px;
+  }
+  .landing-panel {
+    padding: 14px;
+  }
+  .landing-panel > .landing-divider-marks,
+  .landing-kind__stage > .landing-divider-marks {
+    display: block;
+  }
+  .landing-mcp__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+  /* A terminal is as wide as its widest line, and these lines are columns that
+     cannot be rewrapped without becoming a different table. So the type is set
+     from the viewport instead: at any phone width the longest row lands inside
+     the window, and the window keeps its scroll only as a backstop. */
+  .landing-terminal__body {
+    padding: 14px 12px 16px;
+    font-size: clamp(8px, 2.5vw, 12.5px);
+    line-height: 1.75;
+  }
+  .landing-terminal__prompt {
+    margin-inline-end: 6px;
+  }
+}

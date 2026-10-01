@@ -1,0 +1,277 @@
+/* The two workspace-kind illustrations. Every colour here is a token the rest
+   of the app already uses — the activity hues, the map's link and signal, the
+   warm colour anything selected on a canvas wears — so the drawings change with
+   the theme without naming a theme.
+
+   Motion is opt-in from the outside. Everything animated runs at
+   `animation-play-state: var(--wk-run)`, and `--wk-run` is `paused` here; the
+   picker sets it to `running` on a hovered or selected card, and the landing
+   page sets it once a panel has been revealed. Paused at its first keyframe an
+   illustration is at rest: no signal on the wire, the checkbox still empty.
+   A visitor who asked for less motion gets no animation at all, and then the
+   resting values below are what they see — including a tick that is simply
+   already drawn. */
+
+.wk-art {
+  --wk-run: paused;
+  display: block;
+  width: min(100%, calc(var(--wk-art-h, 88px) * 1.32));
+  aspect-ratio: 132 / 100;
+}
+.wk-art svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* ---- Shared parts -------------------------------------------------------- */
+
+.wk-art__plate {
+  fill: color-mix(in oklab, var(--foreground) 3.5%, var(--surface));
+  stroke: color-mix(in oklab, var(--foreground) 9%, transparent);
+  stroke-width: 1;
+}
+.wk-art__line {
+  fill: color-mix(in oklab, var(--foreground) 42%, transparent);
+}
+.wk-art__line--faint {
+  fill: color-mix(in oklab, var(--foreground) 20%, transparent);
+}
+
+/* ---- Coding: the task canvas, seen small -------------------------------- */
+
+.wk-art--coding {
+  --wk-ink-a: var(--activity-change);
+  --wk-ink-b: var(--activity-discovery);
+}
+.wk-art__grid-dot {
+  fill: color-mix(in oklab, var(--foreground) 13%, transparent);
+}
+.wk-art__card {
+  fill: var(--surface);
+  stroke: color-mix(in oklab, var(--foreground) 13%, transparent);
+  stroke-width: 1;
+}
+.wk-art__wire {
+  fill: none;
+  stroke: var(--map-link);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+/* The travelling signal: a short dash walked from one end of the wire to the
+   other, matching the links in the task files map. */
+.wk-art__signal {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-dasharray: 9 100;
+  stroke-dashoffset: 9;
+  opacity: 0;
+  animation: wk-signal 3.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  animation-play-state: var(--wk-run);
+}
+.wk-art__signal--late {
+  animation-delay: 1.1s;
+}
+@keyframes wk-signal {
+  0% {
+    stroke-dashoffset: 9;
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  66% {
+    opacity: 1;
+  }
+  78%,
+  100% {
+    stroke-dashoffset: -100;
+    opacity: 0;
+  }
+}
+.wk-art__chip {
+  fill: color-mix(in oklab, var(--accent) 10%, var(--surface));
+  stroke: color-mix(in oklab, var(--accent) 26%, transparent);
+  stroke-width: 1;
+}
+.wk-art__chip-dot {
+  fill: var(--accent);
+  animation: wk-pulse 3.2s ease-in-out infinite;
+  animation-play-state: var(--wk-run);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+@keyframes wk-pulse {
+  0%,
+  55%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.22);
+  }
+}
+.wk-art__hash {
+  fill: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 8px;
+  letter-spacing: 0.02em;
+}
+.wk-art__node {
+  fill: var(--surface);
+  stroke: var(--map-link);
+  stroke-width: 1.6;
+}
+.wk-art__node--tip {
+  fill: color-mix(in oklab, var(--activity-discovery) 82%, var(--surface));
+  stroke: color-mix(in oklab, var(--activity-discovery) 82%, var(--surface));
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: wk-land 3.2s ease-out 1.1s infinite;
+  animation-play-state: var(--wk-run);
+}
+/* The tip commit is always there; it only takes the signal's arrival. */
+@keyframes wk-land {
+  0%,
+  32%,
+  100% {
+    transform: scale(1);
+  }
+  44% {
+    transform: scale(1.32);
+  }
+}
+
+/* ---- Everyday: the page you would have written instead ------------------- */
+
+.wk-art--everyday {
+  --wk-warm: var(--canvas-selected);
+  --wk-orb-glow: oklch(91% 0.07 78);
+  --wk-orb-start: oklch(79% 0.15 66);
+  --wk-orb-end: oklch(60% 0.14 52);
+}
+.wk-art__page {
+  fill: color-mix(in oklab, var(--wk-warm) 8%, var(--surface));
+  stroke: color-mix(in oklab, var(--wk-warm) 30%, transparent);
+  stroke-width: 1;
+}
+.wk-art__margin {
+  stroke: color-mix(in oklab, var(--wk-warm) 45%, transparent);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+}
+.wk-art__box {
+  fill: var(--surface);
+  stroke: color-mix(in oklab, var(--wk-warm) 42%, transparent);
+  stroke-width: 1.2;
+}
+.wk-art__line--warm {
+  fill: color-mix(in oklab, var(--foreground) 34%, transparent);
+}
+.wk-art__tick,
+.wk-art__strike {
+  fill: none;
+  stroke: var(--wk-warm);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 0;
+  animation: wk-draw 5.4s ease-in-out infinite;
+  animation-play-state: var(--wk-run);
+}
+.wk-art__strike {
+  stroke-width: 1.4;
+  opacity: 0.75;
+  animation-delay: 0.24s;
+}
+@keyframes wk-draw {
+  0%,
+  14% {
+    stroke-dashoffset: 100;
+  }
+  34%,
+  84% {
+    stroke-dashoffset: 0;
+  }
+  96%,
+  100% {
+    stroke-dashoffset: 100;
+  }
+}
+.wk-art__cal-plate {
+  fill: var(--surface);
+  stroke: color-mix(in oklab, var(--wk-warm) 32%, transparent);
+  stroke-width: 1;
+}
+.wk-art__cal-rule,
+.wk-art__cal-peg {
+  stroke: color-mix(in oklab, var(--wk-warm) 40%, transparent);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+}
+.wk-art__cal-day {
+  fill: color-mix(in oklab, var(--foreground) 22%, transparent);
+}
+.wk-art__cal-today {
+  fill: var(--wk-warm);
+}
+.wk-art__cal-halo {
+  fill: none;
+  stroke: var(--wk-warm);
+  stroke-width: 1.2;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: wk-halo 5.4s ease-out 0.6s infinite;
+  animation-play-state: var(--wk-run);
+}
+@keyframes wk-halo {
+  0%,
+  20% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  36% {
+    opacity: 0.7;
+  }
+  62%,
+  100% {
+    transform: scale(1.15);
+    opacity: 0;
+  }
+}
+.wk-art__orb {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: wk-breathe 5.4s ease-in-out infinite;
+  animation-play-state: var(--wk-run);
+}
+@keyframes wk-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.07);
+  }
+}
+.wk-art__orb-glow {
+  fill: color-mix(in oklab, var(--wk-warm) 22%, transparent);
+}
+.wk-art__orb-shine {
+  fill: rgb(255 255 255 / 0.42);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wk-art *,
+  .wk-art *::before,
+  .wk-art *::after {
+    animation: none !important;
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "wireal",
+  "main": "worker/index.ts",
+  // Kept from the MCP Worker rather than moved forward to the day these were
+  // merged: the MCP server is the half with code in it, and its behaviour was
+  // tested against this date. Static assets do not read it.
+  "compatibility_date": "2026-09-01",
+  // The MCP SDK uses Node built-ins.
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    // Serves /index.html with 200 for any path that is not a file on disk, so
+    // a deep link or an OAuth return reaches the shell.
+    "not_found_handling": "single-page-application",
+    // Required, not a preference. The line above makes every path match
+    // index.html, so without this the MCP server would never be reached — it
+    // would be handed the app shell. worker/index.ts splits the two by
+    // hostname and calls the ASSETS binding for the app.
+    "run_worker_first": true,
+  },
+  "observability": { "enabled": true },
+  // One origin, one session — the same rule the www guard in index.html
+  // enforces. A workers.dev hostname or a per-version preview URL would be a
+  // second origin holding its own sign-in.
+  "workers_dev": false,
+  "preview_urls": false,
+  "vars": {
+    // Public origin of the MCP server. It is the OAuth resource identifier
+    // advertised at /.well-known/oauth-protected-resource, and worker/index.ts
+    // reads its hostname to decide which requests are the MCP server's.
+    "MCP_PUBLIC_URL": "https://mcp.wireal.co",
+    "WIREAL_API_URL": "https://api.wireal.co",
+    "WIREAL_AGENT_NAME": "Agent",
+  },
+  // Three hostnames, one Worker. Keeping mcp.wireal.co is what lets the MCP
+  // server merge in without every registered client having to re-register
+  // against a new resource identifier.
+  // These routes, the vars above and the Worker name are the hosted service's
+  // own deployment. A fork or self-hosted instance replaces them with its own
+  // hostnames (and sets WIREAL_APP_URL if the app is not at the MCP host
+  // minus its "mcp." label).
+  "routes": [
+    { "pattern": "wireal.co", "custom_domain": true },
+    { "pattern": "www.wireal.co", "custom_domain": true },
+    { "pattern": "mcp.wireal.co", "custom_domain": true },
+  ],
+  // Set WIREAL_API_URL to the .NET API HTTPS origin in the Worker environment.
+  // Set VITE_API_URL to that same origin in the frontend build environment.
+  // No database key or account token belongs in the Worker configuration.
+}

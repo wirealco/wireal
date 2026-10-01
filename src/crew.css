@@ -1,0 +1,1691 @@
+/* The crew: the pill on the board, the summary it opens, and the window with
+   a card per machine. Everything moves a little — dots breathe, rings fill,
+   rows rise into place, busy agents think — and all of it stops under
+   prefers-reduced-motion, at the foot of this file. */
+
+.crew-dock,
+.crew-summary,
+.crew-window,
+.showcase-runners {
+  --crew-line: color-mix(in srgb, var(--foreground) 8%, transparent);
+  --crew-wash: color-mix(in srgb, var(--foreground) 4%, transparent);
+  --crew-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ---- Live dot ------------------------------------------------------------ */
+
+.crew-dot {
+  position: relative;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--muted) 70%, transparent);
+}
+.crew-dot[data-live="true"] {
+  background: var(--success);
+}
+/* The breath is a halo that swells and fades behind the dot, so the dot itself
+   never changes size and the text beside it never shifts. */
+.crew-dot[data-live="true"]::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  background: var(--success);
+  opacity: 0;
+  animation: crew-breathe 2.8s ease-in-out infinite;
+}
+@keyframes crew-breathe {
+  0%,
+  100% {
+    opacity: 0.28;
+    transform: scale(0.55);
+  }
+  50% {
+    opacity: 0;
+    transform: scale(1.25);
+  }
+}
+
+/* ---- Usage ring ---------------------------------------------------------- */
+
+.crew-ring {
+  --ring-tone: var(--success);
+  display: inline-flex;
+  min-width: var(--ring-size);
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  border-radius: 10px;
+  outline: none;
+}
+.crew-ring:focus-visible {
+  box-shadow: 0 0 0 2px var(--focus, var(--accent));
+}
+.crew-ring[data-tone="warning"] {
+  --ring-tone: var(--warning);
+}
+.crew-ring[data-tone="danger"] {
+  --ring-tone: var(--danger);
+}
+.crew-ring[data-tone="none"] {
+  --ring-tone: var(--muted);
+}
+.crew-ring__dial {
+  position: relative;
+  display: grid;
+  width: var(--ring-size);
+  height: var(--ring-size);
+  place-items: center;
+}
+.crew-ring__dial svg {
+  position: absolute;
+  inset: 0;
+}
+.crew-ring__track {
+  fill: none;
+  stroke: color-mix(in srgb, var(--foreground) 9%, transparent);
+}
+.crew-ring__fill {
+  fill: none;
+  stroke: var(--ring-tone);
+  stroke-linecap: round;
+  transition:
+    stroke-dashoffset 700ms var(--crew-ease),
+    stroke 300ms ease;
+  animation: crew-ring-fill 1100ms var(--crew-ease) both;
+}
+/* A fresh ring is already at its value, so a transition cannot draw it in; the
+   keyframe starts the arc empty and lets it run to wherever it was put. */
+@keyframes crew-ring-fill {
+  from {
+    stroke-dashoffset: var(--ring-length);
+  }
+}
+.crew-ring__value {
+  position: relative;
+  color: var(--foreground);
+  font-size: calc(var(--ring-size) * 0.27);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.crew-ring__value small {
+  margin-left: 0.5px;
+  color: var(--muted);
+  font-size: 0.62em;
+  font-weight: 500;
+}
+.crew-ring__label {
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 500;
+  line-height: 12px;
+}
+.crew-ring__caption {
+  margin-top: -2px;
+  color: color-mix(in srgb, var(--muted) 80%, transparent);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  line-height: 12px;
+}
+
+.crew-usage-pair {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.crew-usage-pair__title {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 12px;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.crew-usage-pair__rings {
+  display: flex;
+  gap: 8px;
+}
+
+/* ---- Agent rows ---------------------------------------------------------- */
+
+.crew-bloub {
+  position: relative;
+  display: grid;
+  width: var(--bloub-size);
+  height: var(--bloub-size);
+  flex: none;
+  place-items: center;
+}
+.crew-bloub .activity-bloub {
+  width: 100%;
+  height: 100%;
+  transition:
+    opacity 300ms ease,
+    filter 300ms ease;
+}
+/* A busy agent thinks: a thin arc runs round it and it bobs on its breath. */
+.crew-bloub[data-state="working"]::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 999px;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0 55%,
+    color-mix(in srgb, var(--success) 85%, transparent) 100%
+  );
+  -webkit-mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - 2px),
+    #000 calc(100% - 1.5px)
+  );
+  mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - 2px),
+    #000 calc(100% - 1.5px)
+  );
+  animation: crew-orbit 1.8s linear infinite;
+}
+.crew-bloub[data-state="working"] .activity-bloub {
+  animation: crew-bob 2.6s ease-in-out infinite;
+}
+.crew-bloub:is(
+    [data-state="idle"],
+    [data-state="waiting"],
+    [data-state="locked"]
+  )
+  .activity-bloub {
+  opacity: 0.78;
+}
+.crew-bloub:is([data-state="offline"], [data-state="paused"]) .activity-bloub {
+  opacity: 0.45;
+  filter: grayscale(1);
+}
+@keyframes crew-orbit {
+  to {
+    transform: rotate(1turn);
+  }
+}
+@keyframes crew-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1.5px);
+  }
+}
+
+.crew-members {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.crew-member {
+  display: grid;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  border-radius: 12px;
+  padding: 7px 8px;
+  animation: crew-rise 420ms var(--crew-ease) both;
+  animation-delay: calc(var(--i, 0) * 45ms);
+  transition: background-color 160ms ease;
+}
+.crew-member:hover {
+  background: var(--crew-wash);
+}
+.crew-member[data-state="working"] {
+  background: color-mix(in srgb, var(--success) 6%, transparent);
+}
+.crew-member[data-state="working"]:hover {
+  background: color-mix(in srgb, var(--success) 10%, transparent);
+}
+@keyframes crew-rise {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+.crew-member__main {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 1px;
+}
+.crew-member__who {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 6px;
+}
+.crew-member__name {
+  min-width: 0;
+  color: var(--foreground);
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 17px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.crew-member__brand {
+  flex: none;
+  border-radius: 999px;
+  background: var(--crew-wash);
+  padding: 0 6px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 15px;
+}
+.crew-member__brand[data-brand="claude"] {
+  background: color-mix(in srgb, #d97757 14%, transparent);
+  color: color-mix(in srgb, #d97757 80%, var(--foreground));
+}
+.crew-member__where {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.crew-member__doing {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 12px;
+  line-height: 16px;
+}
+.crew-member__task {
+  display: inline-flex;
+  min-width: 0;
+  max-width: 100%;
+  flex-shrink: 1;
+  align-items: baseline;
+  gap: 5px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  padding: 0;
+  color: var(--foreground);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+.crew-member__task:hover .crew-member__task-name {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.crew-member__task:focus-visible {
+  outline: 2px solid var(--focus, var(--accent));
+  outline-offset: 2px;
+}
+.crew-member__ref {
+  flex: none;
+  color: var(--success);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.crew-member__task-name,
+.crew-member__task-text,
+.crew-member__status {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.crew-member__status {
+  color: var(--muted);
+}
+.crew-member__status[data-waiting] {
+  color: var(--warning);
+}
+/* What it is doing right now and the files it has open, on one quiet line
+   under the task. */
+.crew-member__detail {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 15px;
+}
+.crew-member__step {
+  min-width: 0;
+  flex: 0 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.crew-member__files {
+  min-width: 4rem;
+  flex: 0 1000 auto;
+  overflow: hidden;
+  color: color-mix(in srgb, var(--muted) 75%, transparent);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 10.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.crew-member__end {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+}
+.crew-elapsed {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--success) 12%, transparent);
+  padding: 1px 7px;
+  color: var(--success);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  line-height: 16px;
+}
+.crew-member[data-state="offline"] .crew-member__name,
+.crew-member[data-state="paused"] .crew-member__name {
+  color: var(--muted);
+}
+
+/* ---- The pill ------------------------------------------------------------ */
+
+/* It floats over the bottom-right corner of the board, where the dock was. */
+.crew-dock {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 40;
+}
+@media (max-width: 720px) {
+  .crew-dock {
+    right: 12px;
+    bottom: 84px;
+  }
+}
+.crew-pill {
+  position: relative;
+  height: 40px;
+  gap: 9px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  padding: 0 16px 0 14px;
+  backdrop-filter: blur(16px);
+  box-shadow: var(--overlay-shadow);
+  color: var(--foreground);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+/* While anyone works the pill wears a slow green glow, which is the board's
+   one hint that something is happening off screen. */
+.crew-pill[data-working]::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--success) 40%, transparent);
+  pointer-events: none;
+  animation: crew-glow 3.2s ease-in-out infinite;
+}
+@keyframes crew-glow {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.crew-pill__count {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.crew-pill__count b {
+  color: var(--foreground);
+  font-weight: 600;
+}
+.crew-pill__usage {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--success);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.crew-pill__usage::before {
+  content: "";
+  width: 1px;
+  height: 14px;
+  background: var(--crew-line);
+}
+.crew-pill__week {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.crew-pill__week[data-tone="warning"] {
+  color: var(--warning);
+}
+.crew-pill__week[data-tone="danger"] {
+  color: var(--danger);
+}
+.crew-pill__week-label {
+  margin-left: -4px;
+  color: var(--muted);
+  font-weight: 500;
+}
+.crew-pill__news {
+  position: absolute;
+  top: -5px;
+  right: -3px;
+  display: grid;
+  min-width: 18px;
+  height: 18px;
+  place-items: center;
+  border: 2px solid var(--background);
+  border-radius: 999px;
+  background: var(--accent);
+  padding: 0 4px;
+  color: var(--accent-foreground);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  animation: crew-pop 360ms var(--crew-ease) both;
+}
+@keyframes crew-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+}
+
+/* ---- The summary --------------------------------------------------------- */
+
+.crew-popover {
+  width: 360px;
+}
+/* Both scroll inside HeroUI's ScrollShadow, which fades the edge content
+   leaves by instead of drawing a scrollbar. */
+.crew-popover__scroll {
+  max-height: min(76dvh, 40rem);
+  overscroll-behavior: contain;
+}
+.crew-sheet__dialog {
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+}
+.crew-sheet__scroll {
+  max-height: 82dvh;
+  overscroll-behavior: contain;
+}
+.crew-summary {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 14px;
+}
+.crew-summary > * {
+  animation: crew-rise 380ms var(--crew-ease) both;
+}
+.crew-summary > :nth-child(2) {
+  animation-delay: 40ms;
+}
+.crew-summary > :nth-child(3) {
+  animation-delay: 80ms;
+}
+.crew-summary > :nth-child(n + 4) {
+  animation-delay: 120ms;
+}
+.crew-summary__head {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+}
+.crew-summary__title {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 20px;
+}
+.crew-summary__count {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.crew-modes {
+  flex: 1 0 100%;
+  min-width: 0;
+  margin-top: 6px;
+  gap: 2px;
+  border-radius: 12px;
+  background: var(--default);
+  padding: 2px;
+}
+.crew-modes__mode {
+  min-width: 0;
+  height: 28px;
+  border-radius: 10px;
+  background: transparent;
+  padding-inline: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+.crew-modes__mode[data-selected] {
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+  color: var(--foreground);
+}
+.crew-summary__usage {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+  gap: 12px 6px;
+  border-radius: 16px;
+  background: var(--crew-wash);
+  padding: 12px 8px;
+}
+.crew-summary__note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--warning) 9%, transparent);
+  padding: 10px 10px 10px 14px;
+  font-size: 12px;
+  line-height: 16px;
+}
+.crew-summary__label,
+.crew-section-label {
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 14px;
+  text-transform: uppercase;
+}
+.crew-summary__hint {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 15px;
+}
+.crew-ready {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 6px;
+}
+/* The free agents, as a grid of small cards: a face, the name under it. */
+.crew-ready__grid {
+  display: grid;
+  gap: 6px;
+  grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.crew-ready__tile {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 2px;
+  font-size: 12px;
+  line-height: 16px;
+}
+.crew-ready__tile .crew-bloub {
+  transition: transform 180ms var(--crew-ease, ease);
+}
+.crew-ready__tile[data-draggable] {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+.crew-ready__tile[data-draggable]:hover .crew-bloub {
+  transform: translateY(-2px) scale(1.06);
+}
+.crew-ready__tile[data-draggable]:active {
+  cursor: grabbing;
+}
+.crew-ready__tile[data-state="waiting"] .crew-ready__name {
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--default);
+  padding: 1px 8px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.crew-ready__name {
+  color: var(--warning);
+}
+.crew-ready__name {
+  color: var(--warning);
+}
+.crew-ready__name {
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.crew-people {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.crew-people ul {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.crew-people li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 8px;
+  font-size: 12px;
+}
+.crew-people__name {
+  font-weight: 500;
+}
+.crew-people__client {
+  color: var(--muted);
+  font-size: 11px;
+  text-align: right;
+}
+.crew-people__task {
+  grid-column: 1 / -1;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.crew-summary__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border-top: 1px solid var(--crew-line);
+  padding-top: 12px;
+}
+.crew-summary__open {
+  gap: 6px;
+}
+
+/* ---- The window ---------------------------------------------------------- */
+
+.crew-window {
+  width: calc(100vw - 2rem);
+  max-width: 1180px;
+  height: min(88dvh, 900px);
+}
+/* On a phone the window is the whole page. */
+.crew-window--page {
+  padding: 0 !important;
+}
+.crew-window__page {
+  width: 100vw !important;
+  max-width: none !important;
+  height: 100dvh !important;
+  max-height: none !important;
+  border-radius: 0 !important;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.crew-head {
+  display: flex;
+  min-width: 0;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+}
+.crew-head__titles {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 1px;
+}
+.crew-head__title {
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 24px;
+}
+.crew-head__sub {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  line-height: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.crew-head button {
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+}
+.crew-body {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+}
+.crew-body__scroll {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 12px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 4px 2px 12px;
+}
+.crew-view,
+.crew-rules {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 14px;
+  animation: crew-slide 320ms var(--crew-ease) both;
+}
+.crew-rules {
+  max-width: 44rem;
+}
+@keyframes crew-slide {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+}
+.crew-grid {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 24rem), 1fr));
+  align-items: start;
+  gap: 12px;
+}
+
+/* A runner's card. */
+.crew-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid var(--crew-line);
+  border-radius: 20px;
+  background: var(--surface);
+  padding: 14px;
+  animation: crew-rise 460ms var(--crew-ease) both;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+.crew-card[data-online="false"] {
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+}
+/* A runner that has just connected lands with a green ring that fades. */
+.crew-card[data-arrived] {
+  animation:
+    crew-arrive 620ms var(--crew-ease) both,
+    crew-arrive-ring 2.8s ease-out 300ms both;
+}
+@keyframes crew-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+}
+@keyframes crew-arrive-ring {
+  from {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--success) 45%, transparent);
+  }
+  to {
+    box-shadow: 0 0 0 3px transparent;
+  }
+}
+.crew-card__head {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px 14px;
+}
+.crew-card__id {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 9rem;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 2px;
+}
+.crew-card__name {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--foreground);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 20px;
+}
+.crew-card__busy {
+  flex: none;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--success) 12%, transparent);
+  padding: 0 7px;
+  color: var(--success);
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 17px;
+}
+.crew-card__meta {
+  overflow: hidden;
+  margin: 0;
+  padding-left: 16px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.crew-card__usage {
+  display: flex;
+  flex: none;
+  gap: 14px;
+}
+.crew-card__usage .crew-usage-pair + .crew-usage-pair {
+  border-left: 1px solid var(--crew-line);
+  padding-left: 14px;
+}
+.crew-card__empty {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 17px;
+  text-wrap: pretty;
+}
+.crew-card .crew-members {
+  margin-inline: -6px;
+}
+
+/* The facts fold open under the agents; the grid row grows from nothing so
+   the card's height animates without measuring anything. */
+.crew-card__details {
+  display: grid;
+  grid-template-rows: 0fr;
+  /* Folded, it gives back the gap the card puts above it. */
+  margin-top: -10px;
+  transition:
+    grid-template-rows 320ms var(--crew-ease),
+    margin-top 320ms var(--crew-ease);
+}
+.crew-card__details[data-open="true"] {
+  grid-template-rows: 1fr;
+  margin-top: 0;
+}
+.crew-card__details-inner {
+  display: grid;
+  min-height: 0;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: 12px 20px;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 240ms ease;
+}
+.crew-card__details[data-open="true"] .crew-card__details-inner {
+  border-top: 1px solid var(--crew-line);
+  padding-top: 12px;
+  opacity: 1;
+}
+.crew-card__details h4 {
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.crew-facts {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 3px 12px;
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 18px;
+}
+.crew-facts__row {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+}
+.crew-facts dt {
+  color: var(--muted);
+  white-space: nowrap;
+}
+.crew-facts dd {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.crew-card__foot {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 6px;
+  border-top: 1px solid var(--crew-line);
+  padding-top: 8px;
+}
+.crew-card__said {
+  display: inline-flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  animation: crew-rise 300ms ease both;
+}
+.crew-card__said[data-state="answered"] {
+  color: var(--success);
+}
+.crew-card__said[data-state="timeout"],
+.crew-card__said[data-state="error"] {
+  color: var(--danger);
+}
+.crew-card__behind {
+  flex: none;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--warning) 14%, transparent);
+  padding: 1px 8px;
+  color: var(--warning);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.crew-card__more {
+  gap: 4px;
+  color: var(--muted);
+}
+.crew-card__chevron {
+  transition: transform 240ms var(--crew-ease);
+}
+.crew-card__chevron[data-open="true"] {
+  transform: rotate(180deg);
+}
+.crew-menu {
+  max-width: 19rem;
+}
+.crew-menu__item {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 1px;
+  padding-block: 2px;
+}
+.crew-menu__label {
+  font-size: 13px;
+  font-weight: 500;
+}
+.menu-item--danger .crew-menu__label {
+  color: var(--danger);
+}
+.crew-menu__why {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 14px;
+  white-space: normal;
+}
+
+/* A soft ping expanding from a dot: something is being waited for. */
+.crew-wait__pulse {
+  position: relative;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 999px;
+  background: var(--accent);
+}
+.crew-wait__pulse::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1.5px solid var(--accent);
+  animation: crew-ping 1.6s var(--crew-ease) infinite;
+}
+@keyframes crew-ping {
+  from {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(3.2);
+  }
+}
+
+/* The connect card, folded: a dashed outline the size of a small card. */
+.crew-connect {
+  display: flex;
+  min-width: 0;
+  min-height: 9rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 1px dashed color-mix(in srgb, var(--muted) 45%, transparent);
+  border-radius: 20px;
+  background: transparent;
+  padding: 18px;
+  color: var(--foreground);
+  cursor: pointer;
+  font: inherit;
+  text-align: center;
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease;
+  animation: crew-rise 460ms var(--crew-ease) both;
+}
+button.crew-connect:hover {
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
+}
+button.crew-connect:focus-visible {
+  outline: 2px solid var(--focus, var(--accent));
+  outline-offset: 2px;
+}
+.crew-connect__plus {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  margin-bottom: 4px;
+  border-radius: 999px;
+  background: var(--default);
+  color: var(--muted);
+  transition: transform 240ms var(--crew-ease);
+}
+button.crew-connect:hover .crew-connect__plus {
+  color: var(--accent);
+  transform: rotate(90deg);
+}
+.crew-connect__title {
+  font-size: 14px;
+  font-weight: 600;
+}
+.crew-connect__note {
+  max-width: 18rem;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 16px;
+  text-wrap: pretty;
+}
+.crew-connect--open {
+  display: grid;
+  align-items: start;
+  justify-content: stretch;
+  gap: 20px;
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  background: color-mix(in srgb, var(--accent) 3%, transparent);
+  cursor: auto;
+  text-align: left;
+}
+/* With no runner at all the connect card is the window: it grows into the
+   space, centres itself, and three agents wait on it for their machine. */
+.crew-view[data-hero] {
+  flex: 1;
+}
+.crew-connect[data-hero] {
+  width: 100%;
+  max-width: 64rem;
+  min-height: 0;
+  flex: 1;
+  align-self: center;
+  align-content: center;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: 32px 40px;
+  padding: clamp(18px, 4vw, 48px);
+}
+.crew-connect__art {
+  display: flex;
+  align-items: flex-end;
+  margin-bottom: 4px;
+}
+.crew-connect__bloub {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  animation: crew-float 3.6s ease-in-out infinite;
+  animation-delay: calc(var(--i) * -1.2s);
+}
+.crew-connect__bloub + .crew-connect__bloub {
+  margin-left: -8px;
+}
+.crew-connect__bloub:nth-child(2) {
+  width: 46px;
+  height: 46px;
+}
+.crew-connect__bloub .activity-bloub {
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  box-shadow: 0 0 0 2px var(--background);
+}
+@keyframes crew-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+.crew-connect__body {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 14px;
+}
+.crew-connect__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+.crew-connect__heading {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 20px;
+}
+.crew-connect[data-hero] .crew-connect__heading {
+  font-size: 20px;
+  line-height: 26px;
+}
+.crew-connect__lead {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 18px;
+  text-wrap: pretty;
+}
+.crew-connect__alt summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 12px;
+  list-style: none;
+}
+.crew-connect__alt summary::-webkit-details-marker {
+  display: none;
+}
+.crew-connect__alt summary svg {
+  transition: transform 200ms var(--crew-ease);
+}
+.crew-connect__alt[open] summary svg {
+  transform: rotate(180deg);
+}
+.crew-connect__alt[open] .agents-command {
+  margin-top: 10px;
+  animation: crew-rise 300ms var(--crew-ease) both;
+}
+.crew-connect__wait {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.crew-connect__wait .agents-onboard__link {
+  margin-left: auto;
+}
+.crew-connect__steps {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 14px;
+  border-radius: 16px;
+  background: var(--surface);
+  padding: 18px;
+}
+
+/* The left-over agents, gathered above everything with one way out. */
+.crew-banner {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 12px;
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--warning) 9%, transparent);
+  padding: 10px 12px;
+  animation: crew-rise 380ms var(--crew-ease) both;
+}
+.crew-banner__bloubs {
+  display: inline-flex;
+}
+.crew-banner__bloubs .crew-bloub + .crew-bloub {
+  margin-left: -6px;
+}
+.crew-banner__text {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 12rem;
+  flex-direction: column;
+}
+.crew-banner__title {
+  color: var(--foreground);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 17px;
+}
+.crew-banner__note {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+/* On a phone the usage comes first, big, so it is the first thing seen. */
+.crew-usage {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  gap: 10px;
+  border-radius: 20px;
+  background: var(--surface);
+  padding: 14px 10px;
+  animation: crew-rise 380ms var(--crew-ease) both;
+}
+
+.crew-elsewhere {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 10px;
+}
+.crew-elsewhere__toggle {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  padding: 6px 10px 6px 6px;
+  color: var(--muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+}
+.crew-elsewhere__toggle:hover {
+  background: var(--crew-wash);
+  color: var(--foreground);
+}
+.crew-elsewhere__toggle:focus-visible {
+  outline: 2px solid var(--focus, var(--accent));
+}
+.crew-elsewhere__count {
+  min-width: 20px;
+  border-radius: 999px;
+  background: var(--default);
+  padding: 0 6px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  line-height: 18px;
+  text-align: center;
+}
+
+@media (max-width: 56rem) {
+  .crew-body {
+    padding-bottom: 24px;
+  }
+  .crew-card {
+    padding: 14px 12px 12px;
+  }
+  .crew-card__foot {
+    flex-wrap: wrap;
+  }
+  .crew-card__said {
+    order: 5;
+    flex-basis: 100%;
+  }
+  .crew-card__said:empty {
+    display: none;
+  }
+  /* With the reply line folded away, the menu still closes the row on the
+     right, as it does on a wide card. */
+  .crew-card__said + * {
+    margin-left: auto;
+  }
+  .crew-card__foot .button {
+    min-height: 36px;
+  }
+  .crew-connect[data-hero] {
+    padding: 18px;
+  }
+}
+
+/* ---- Shared plates: the mode prompt, commands and onboarding ------------- */
+
+.agents-switch__list {
+  display: flex;
+  min-height: 0;
+  max-height: 40dvh;
+  flex-direction: column;
+  gap: 8px;
+}
+.agents-switch__row {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+  border-radius: 12px;
+  background: var(--background-tertiary);
+  padding: 8px 10px;
+}
+.agents-switch__name {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+}
+
+.agents-command {
+  display: grid;
+  min-width: 0;
+  align-items: center;
+  gap: 6px 8px;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+.agents-command__title {
+  grid-row: 1;
+  grid-column: 1 / -1;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+}
+.agents-command__code {
+  grid-row: 2;
+  grid-column: 1;
+  min-width: 0;
+  overflow: hidden;
+  margin: 0;
+  border: 1px solid var(--crew-line, var(--border));
+  border-radius: 12px;
+  background: var(--surface);
+  padding: 9px 12px;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 12.5px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.agents-command__copy {
+  grid-row: 2;
+  grid-column: 2;
+  display: inline-flex;
+  flex: none;
+}
+.agents-onboard__link {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: 4px;
+  color: var(--accent);
+  font-size: 12.5px;
+  line-height: 16px;
+  text-decoration: none;
+}
+.agents-onboard__link:hover {
+  text-decoration: underline;
+}
+
+.agents-onboard {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.agents-onboard__step {
+  display: grid;
+  min-width: 0;
+  align-items: start;
+  gap: 12px;
+  grid-template-columns: auto minmax(0, 1fr);
+  animation: crew-rise 460ms var(--crew-ease) both;
+  animation-delay: calc(var(--i, 0) * 90ms);
+}
+.agents-onboard__art {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: var(--default);
+  color: var(--muted);
+}
+.agents-onboard__index {
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  display: grid;
+  place-items: center;
+  min-width: 16px;
+  height: 16px;
+  border: 1px solid var(--background);
+  border-radius: 999px;
+  background: var(--background-tertiary);
+  color: var(--muted);
+  font-size: 9.5px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  line-height: 1;
+}
+.agents-onboard__pair {
+  display: inline-flex;
+  align-items: center;
+}
+.agents-onboard__bloub + .agents-onboard__bloub {
+  margin-left: -6px;
+}
+.agents-onboard__bloub {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 17px;
+  height: 17px;
+}
+.agents-onboard .activity-bloub {
+  width: 17px;
+  height: 17px;
+  border-radius: 999px;
+  box-shadow: 0 0 0 1.5px var(--default);
+}
+.agents-onboard__text {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 2px;
+}
+.agents-onboard__title {
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 17px;
+}
+.agents-onboard__note {
+  min-width: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 16px;
+  text-wrap: pretty;
+}
+
+/* ---- Stillness ----------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .crew-dot::after,
+  .crew-ring__fill,
+  .crew-bloub::before,
+  .crew-bloub .activity-bloub,
+  .crew-member,
+  .crew-pill::before,
+  .crew-pill__news,
+  .crew-summary > *,
+  .crew-view,
+  .crew-rules,
+  .crew-card,
+  .crew-card__said,
+  .crew-wait__pulse::after,
+  .crew-connect,
+  .crew-connect__alt[open] .agents-command,
+  .crew-connect__bloub,
+  .crew-banner,
+  .crew-usage,
+  .agents-onboard__step {
+    animation: none !important;
+  }
+  .crew-ring__fill,
+  .crew-card__details,
+  .crew-card__details-inner,
+  .crew-card__chevron,
+  .crew-connect__plus,
+  .crew-connect__alt summary svg {
+    transition: none !important;
+  }
+  .crew-dot[data-live="true"]::after {
+    opacity: 0.2;
+    transform: scale(0.9);
+  }
+}
+
+/* While an agent is dragged out of it the popover fades and lets the cards
+   under it take the drop. */
+.crew-popover[data-dragging] {
+  opacity: 0.35;
+  pointer-events: none;
+  transition: opacity 160ms ease;
+}
+
+/* An agent carried to the board: its face rides under the pointer, pops
+   up when lifted, sways while it travels and drops into the card it lands
+   on. Cards that would take it are outlined while it is in the air. */
+.agent-drag-ghost {
+  position: fixed;
+  left: -22px;
+  top: -22px;
+  z-index: 10000;
+  pointer-events: none;
+  will-change: transform;
+}
+.agent-drag-ghost > .crew-bloub {
+  --bloub-size: 44px;
+  filter: drop-shadow(0 10px 18px rgb(0 0 0 / 0.35));
+  animation:
+    agent-drag-lift 220ms cubic-bezier(0.2, 0.9, 0.3, 1.4) both,
+    agent-drag-sway 1.2s ease-in-out 220ms infinite;
+}
+.agent-drag-ghost[data-end="landed"] > .crew-bloub {
+  animation: agent-drag-land 240ms ease-in both;
+}
+.agent-drag-ghost[data-end="dropped"] > .crew-bloub {
+  animation: agent-drag-drop 240ms ease-out both;
+}
+@keyframes agent-drag-lift {
+  from {
+    transform: scale(0.6);
+  }
+  to {
+    transform: scale(1.12);
+  }
+}
+@keyframes agent-drag-sway {
+  0%,
+  100% {
+    transform: scale(1.12) rotate(-6deg);
+  }
+  50% {
+    transform: scale(1.12) rotate(6deg);
+  }
+}
+@keyframes agent-drag-land {
+  to {
+    opacity: 0;
+    transform: translateY(10px) scale(0.3);
+  }
+}
+@keyframes agent-drag-drop {
+  to {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+}
+html[data-agent-dragging],
+html[data-agent-dragging] * {
+  cursor: grabbing !important;
+  user-select: none;
+}
+html[data-agent-dragging] [data-agent-target] {
+  outline: 2px dashed color-mix(in srgb, var(--accent) 55%, transparent);
+  outline-offset: 4px;
+}
+html[data-agent-dragging] [data-agent-target][data-agent-over] {
+  outline: 2px solid var(--accent);
+  transform: translateY(-2px) scale(1.02);
+  transition: transform 140ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .agent-drag-ghost > .crew-bloub,
+  .agent-drag-ghost[data-end] > .crew-bloub {
+    animation: none;
+  }
+}

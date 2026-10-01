@@ -1,0 +1,220 @@
+.landing-hero__scene {
+  --hero-card-scale: 0.82;
+  --hero-card-inset: 12px;
+  --hero-wire: color-mix(in srgb, var(--accent) 70%, transparent);
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.landing-hero__cards {
+  position: absolute;
+  inset: 0;
+}
+
+.landing-hero__card {
+  position: absolute;
+  width: 18rem;
+  will-change: transform;
+  transition: opacity 240ms ease-out;
+}
+.landing-hero__card[data-side="left"] {
+  left: calc(var(--hero-card-inset) + var(--hero-card-shift));
+}
+.landing-hero__card[data-side="right"] {
+  right: calc(var(--hero-card-inset) + var(--hero-card-shift));
+}
+.landing-hero__card[data-row="0"],
+.landing-hero__card[data-row="1"] {
+  top: var(--hero-card-y);
+}
+.landing-hero__card[data-row="2"] {
+  bottom: var(--hero-card-y);
+}
+
+.landing-hero__card-lift {
+  transform: translateY(var(--hero-card-lift, 0px))
+    scale(var(--hero-card-scale));
+  transition: transform 180ms ease-out;
+}
+.landing-hero__card[data-side="left"] .landing-hero__card-lift {
+  transform-origin: top left;
+}
+.landing-hero__card[data-side="right"] .landing-hero__card-lift {
+  transform-origin: top right;
+}
+.landing-hero__card[data-side="left"][data-row="2"] .landing-hero__card-lift {
+  transform-origin: bottom left;
+}
+.landing-hero__card[data-side="right"][data-row="2"] .landing-hero__card-lift {
+  transform-origin: bottom right;
+}
+
+.landing-hero__card .task-card {
+  transition:
+    border-color 180ms ease-out,
+    box-shadow 180ms ease-out,
+    background-color 180ms ease-out;
+}
+.landing-hero__scene[data-hover="on"] .landing-hero__card[data-relation="far"] {
+  opacity: 0.7;
+}
+.landing-hero__card[data-relation="self"] {
+  --hero-card-lift: -4px;
+}
+.landing-hero__card[data-relation="self"] .task-card {
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  box-shadow: 0 12px 24px color-mix(in srgb, #000 22%, transparent);
+}
+.landing-hero__card[data-relation="near"] .task-card {
+  border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.landing-hero__commit,
+.landing-hero__branch {
+  pointer-events: none;
+}
+.landing-hero__branch {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.landing-hero__wires {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.landing-hero__wire path {
+  fill: none;
+  stroke: var(--hero-wire);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-dasharray: 6 5;
+  transition: stroke 180ms ease-out;
+}
+.landing-hero__wire[data-lit="true"] path {
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.landing-hero__labels {
+  position: absolute;
+  inset: 0;
+}
+.landing-hero__wire-label {
+  top: 0;
+  left: 0;
+}
+
+.landing-hero__orb {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 22px;
+  height: 22px;
+  opacity: 0;
+  transition: opacity 200ms ease-out;
+  will-change: transform;
+}
+.landing-hero__orb[data-on="true"] {
+  opacity: 1;
+}
+.landing-hero__orb .activity-bloub {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .landing-hero__wires[data-motion="on"] .landing-hero__wire path {
+    animation: landing-hero-draw 900ms ease-out both;
+    animation-delay: calc(var(--hero-wire-i) * 120ms);
+  }
+  .landing-hero__wire[data-lit="true"] path {
+    animation-name: landing-hero-draw, landing-hero-flow;
+    animation-duration: 900ms, 900ms;
+    animation-timing-function: ease-out, linear;
+    animation-fill-mode: both, none;
+    animation-iteration-count: 1, infinite;
+    animation-delay:
+      calc(var(--hero-wire-i) * 120ms), calc(900ms + var(--hero-wire-i) * 120ms);
+  }
+  .landing-hero__scene[data-reset="true"] .landing-hero__card {
+    animation: landing-hero-settle 300ms ease-out both;
+  }
+}
+@keyframes landing-hero-draw {
+  from {
+    stroke-dasharray: var(--hero-wire-length, 900);
+    stroke-dashoffset: var(--hero-wire-length, 900);
+  }
+  99% {
+    stroke-dasharray: var(--hero-wire-length, 900);
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dasharray: 6 5;
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes landing-hero-flow {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -22;
+  }
+}
+@keyframes landing-hero-settle {
+  from {
+    opacity: 0.45;
+  }
+}
+
+@media (max-width: 1180px) {
+  .landing-hero__scene {
+    --hero-card-scale: 0.7;
+    --hero-card-inset: 8px;
+  }
+}
+
+@media (max-width: 1023px) {
+  .landing-hero__scene {
+    --hero-card-scale: 0.58;
+    --hero-card-inset: 6px;
+  }
+}
+
+@media (max-width: 719px) {
+  .landing-hero__scene[data-phone="true"] {
+    --hero-card-scale: 0.56;
+    position: static;
+    display: block;
+  }
+  .landing-hero__scene[data-phone="true"] .landing-hero__cards {
+    position: relative;
+    inset: auto;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    gap: 32px;
+    margin: 26px calc(var(--landing-gutter) * -1 + 4px) 0;
+  }
+  .landing-hero__scene[data-phone="true"] .landing-hero__card {
+    position: relative;
+    inset: auto;
+    width: auto;
+  }
+  .landing-hero__scene[data-phone="true"] .landing-hero__card-lift {
+    transform: none;
+    transform-origin: top left;
+    zoom: var(--hero-card-scale);
+  }
+  .landing-hero__scene[data-phone="true"] .landing-hero__wires,
+  .landing-hero__scene[data-phone="true"] .landing-hero__labels {
+    position: absolute;
+    inset: 0;
+  }
+}

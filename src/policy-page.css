@@ -1,0 +1,287 @@
+/* The two legal documents, drawn on the landing page's sheet rather than on one
+   of their own: the page's own header row, the same column at the same width,
+   the same four rails, and bands told apart by the same dashed hairline and the
+   same square marker at each joint. None of that frame is restated here — it
+   comes from `.landing-page`, which every document is rendered inside — and
+   nothing below states a colour or a corner of its own either. What this file
+   draws is what is inside the bands. */
+
+.policy {
+  --policy-gutter: var(--landing-gutter);
+  /* What a heading keeps clear of the top of the viewport when it is jumped
+     to, and the top of the band that decides which section is current. */
+  --policy-anchor: 104px;
+  position: relative;
+  display: flow-root;
+  color: var(--foreground);
+}
+
+/* ---- Contents ------------------------------------------------------------ */
+
+.policy-contents__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.policy-contents__link {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.35;
+  text-decoration: none;
+  transition:
+    color 140ms ease,
+    border-color 140ms ease,
+    background-color 140ms ease;
+}
+.policy-contents__link:hover {
+  color: var(--foreground);
+}
+/* One ring for both faces of the contents. An outline traces the corner of the
+   box it rings, and the chip below turns the chip corner, so the ring has to
+   turn it too or a focused chip is a rounded box inside a nearly square one.
+   The rail's entry is the same padded row without the border drawn, and the
+   same corner suits it: a ring is the one time that row is a box. */
+.policy-contents__link:focus-visible {
+  border-radius: var(--landing-corner-chip);
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+.policy-contents__number {
+  flex: none;
+  color: color-mix(in srgb, var(--muted) 70%, transparent);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+}
+.policy-contents__link[data-current="true"] {
+  color: var(--foreground);
+}
+.policy-contents__link[data-current="true"] .policy-contents__number {
+  color: var(--muted);
+}
+
+/* The rail. A sticky, ruled list: each entry hangs on the rail's own dashed
+   line, and the current entry marks its place with a solid tick.
+
+   The rail's own divider is the drawing and keeps its square ends, and so does
+   the tick: it is a one-pixel segment of that line filled in, not a box laid
+   on it, and a line has no corner to turn. What the current entry does gain
+   from the page's corner scale is its focus ring, at the chip corner above,
+   which is the only box the row ever draws. */
+.policy-contents--rail {
+  position: sticky;
+  top: var(--policy-anchor);
+}
+.policy-contents--rail .policy-contents__list {
+  display: flex;
+  flex-direction: column;
+  border-left: 1px dashed var(--landing-line);
+}
+.policy-contents--rail .policy-contents__link {
+  position: relative;
+  padding: 9px 8px 9px 14px;
+}
+.policy-contents--rail .policy-contents__link::before {
+  content: "";
+  position: absolute;
+  top: 9px;
+  bottom: 9px;
+  left: -1px;
+  width: 1px;
+  background: var(--foreground);
+  opacity: 0;
+  transition: opacity 140ms ease;
+}
+.policy-contents--rail .policy-contents__link[data-current="true"]::before {
+  opacity: 1;
+}
+
+/* The chip row, for when there is no room beside the document. It scrolls
+   sideways on its own and never widens the page. */
+.landing-section.policy-chips {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  padding-inline: 0;
+}
+.policy-contents--chips .policy-contents__list {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-inline: var(--policy-gutter);
+  scrollbar-width: none;
+  scroll-padding-inline: var(--policy-gutter);
+  /* The row says it continues by fading at its ends rather than by cutting a
+     chip in half against the rail. */
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 var(--policy-gutter),
+    #000 calc(100% - var(--policy-gutter)),
+    transparent 100%
+  );
+}
+.policy-contents--chips .policy-contents__list::-webkit-scrollbar {
+  display: none;
+}
+.policy-contents--chips .policy-contents__item {
+  flex: none;
+}
+/* The chip, at the landing's chip corner — the same box `.landing-chip` and
+   the tool marquee run on, at the same dashed hairline, so the row under this
+   hero and the rows down the landing are one kind of tag rather than two that
+   nearly match. */
+.policy-contents--chips .policy-contents__link {
+  padding: 7px 11px;
+  border: 1px dashed var(--landing-line);
+  border-radius: var(--landing-corner-chip);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.policy-contents--chips .policy-contents__link[data-current="true"] {
+  border-style: solid;
+  border-color: color-mix(in srgb, var(--foreground) 34%, transparent);
+  background: var(--landing-stage);
+}
+
+/* ---- Document ------------------------------------------------------------ */
+
+/* The band the document is read in pays its own vertical air through the
+   entries, so it keeps none of the section's. */
+.landing-section.policy-body {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.policy-body__rail {
+  display: none;
+}
+.policy-doc {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+/* A section: its number in the margin, with its heading and prose beside it. */
+.policy-entry {
+  position: relative;
+  display: flex;
+  gap: 18px;
+  padding: 30px 0;
+  scroll-margin-top: var(--policy-anchor);
+}
+.policy-entry__number {
+  flex: none;
+  width: 2.25rem;
+  margin: 0;
+  padding-top: 4px;
+  color: color-mix(in srgb, var(--muted) 70%, transparent);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.1em;
+  line-height: 1.4;
+}
+.policy-entry__text {
+  min-width: 0;
+  flex: 1;
+}
+.policy-entry__heading {
+  margin: 0 0 10px;
+  color: var(--foreground);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: -0.012em;
+  line-height: 1.3;
+}
+.policy-prose {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.7;
+}
+.policy-prose > * {
+  margin: 0;
+  max-width: 65ch;
+}
+.policy-prose > * + * {
+  margin-top: 12px;
+}
+.policy-prose ul,
+.policy-prose ol {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0;
+  list-style: none;
+}
+/* The landing's bullet: a small square on the line's colour, not a disc — and
+   it stays a square for the reason the joint markers do, on the same smallest
+   step. A five-pixel box at the mark corner is still unmistakably a square;
+   at any more of a corner it would be the disc this was drawn not to be. */
+.policy-prose li {
+  position: relative;
+  padding-left: 18px;
+}
+.policy-prose li::before {
+  content: "";
+  position: absolute;
+  top: 0.6em;
+  left: 2px;
+  width: 5px;
+  height: 5px;
+  border: 1px solid color-mix(in srgb, var(--foreground) 30%, transparent);
+  border-radius: var(--landing-corner-mark);
+}
+
+.policy-link {
+  color: var(--foreground);
+  text-decoration: underline;
+  text-decoration-color: var(--separator);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 140ms ease;
+}
+.policy-link:hover {
+  text-decoration-color: currentcolor;
+}
+/* A ring around a run of type, not around a box, so it takes the smallest
+   corner on the scale — the markers' — rather than a chip's. */
+.policy-link:focus-visible {
+  border-radius: var(--landing-corner-mark);
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+
+/* ---- Two columns --------------------------------------------------------- */
+
+/* Once there is room beside the document, the contents leaves the chip row
+   and becomes the rail on its left, held by its own dashed divider. */
+@media (min-width: 1024px) {
+  .landing-section.policy-chips {
+    display: none;
+  }
+  .landing-section.policy-body {
+    display: grid;
+    grid-template-columns: 15rem minmax(0, 1fr);
+    gap: 0 var(--policy-gutter);
+  }
+  .policy-body__rail {
+    display: block;
+    padding: 30px 0;
+    border-right: 1px dashed var(--landing-line);
+    margin-right: calc(var(--policy-gutter) / -2);
+    padding-right: calc(var(--policy-gutter) / 2);
+  }
+}
+
+/* ---- Phone --------------------------------------------------------------- */
+
+@media (max-width: 719px) {
+  .policy-entry {
+    flex-direction: column;
+    gap: 6px;
+    padding: 26px 0;
+  }
+  .policy-entry__number {
+    padding-top: 0;
+  }
+}

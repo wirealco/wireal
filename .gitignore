@@ -1,0 +1,59 @@
+node_modules
+dist/
+.vite/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.env
+.env.*
+!.env.example
+test-results/
+playwright-report/
+.shots/
+coverage/
+*.tsbuildinfo
+.DS_Store
+# heroui-agents-md
+.heroui-docs/
+
+# Local agent and editor state
+.agents/
+.codex/
+.vscode/
+.idea/
+
+# Cloudflare Wrangler
+.wrangler/
+.certs/
+
+# Local databases, development secrets and agent instructions
+.wireal/
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+AGENTS.md
+CLAUDE.md
+
+# GitHub Actions runner installations and credentials (not CI workflows)
+actions-runner/
+.runner
+.runner_migrated
+.credentials
+.credentials_rsaparams
+.service
+_work/
+_diag/
+dist-runner/
+
+# Claude Code worktrees and local settings
+.claude/
+
+# Self-hosted Docker Compose secrets (GitHub App private key)
+/secrets/
+/tools/**/bin/
+/tools/**/obj/

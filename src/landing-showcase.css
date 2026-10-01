@@ -1,0 +1,458 @@
+.showcase {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  min-width: 0;
+  padding-bottom: var(--showcase-top, 44px);
+}
+.showcase__tabs {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0;
+}
+
+.showcase__shell {
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  min-width: 0;
+  flex-direction: column;
+  border: 1px solid var(--landing-line, var(--separator));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--foreground) 2%, var(--background));
+  box-shadow:
+    0 1px 2px color-mix(in srgb, #000 5%, transparent),
+    0 4px 10px color-mix(in srgb, #000 5%, transparent),
+    0 14px 32px color-mix(in srgb, #000 6%, transparent),
+    0 32px 72px color-mix(in srgb, #000 7%, transparent);
+}
+
+.showcase__header {
+  position: relative;
+  display: flex;
+  height: 76px;
+  flex: none;
+  align-items: stretch;
+  border-bottom: 1px solid var(--landing-line, var(--separator));
+}
+.showcase__dots {
+  display: flex;
+  flex: none;
+  align-items: center;
+  padding: 0 20px;
+  gap: 6px;
+}
+.showcase__dots span {
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--landing-line, var(--separator));
+  border-radius: 999px;
+  background: var(--background);
+}
+
+.showcase__switch {
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  height: 50px;
+  min-width: 0;
+  align-self: center;
+  padding: 4px;
+  border: 1px solid var(--landing-line, var(--separator));
+  border-radius: 999px;
+  margin-inline-end: 16px;
+  background: var(--background);
+}
+.showcase__switch .tabs__list-container {
+  display: flex;
+  min-width: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.showcase__switch .tabs__list-container__scroller {
+  min-width: 0;
+}
+.showcase__switch .tabs__list-container__scroll-prev,
+.showcase__switch .tabs__list-container__scroll-next {
+  display: none;
+}
+.showcase__list {
+  display: flex;
+  padding: 0;
+  gap: 4px;
+}
+.showcase__tab {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: auto;
+  height: 40px;
+  flex: none;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 999px;
+  color: var(--foreground);
+  font-size: 16px;
+  font-weight: 500;
+  gap: 8px;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    color 300ms ease-out,
+    background-color 300ms ease-out;
+}
+.showcase__tab svg {
+  flex: none;
+}
+.showcase__tab.tabs__tab:not([data-selected]):not([data-disabled]):hover,
+.showcase__tab.tabs__tab[data-hovered]:not([data-selected]):not(
+    [data-disabled]
+  ) {
+  opacity: 1;
+  background: color-mix(in srgb, var(--foreground) 5%, transparent);
+}
+.showcase__tab[data-selected] {
+  color: var(--accent-foreground);
+}
+.showcase__tab[data-focus-visible] {
+  outline: 2px solid color-mix(in srgb, var(--accent) 60%, transparent);
+  outline-offset: 2px;
+}
+.showcase__pill {
+  position: absolute;
+  z-index: 0;
+  top: 4px;
+  bottom: 4px;
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow:
+    0 1px 2px color-mix(in srgb, #000 16%, transparent),
+    0 4px 10px color-mix(in srgb, var(--accent) 34%, transparent),
+    0 0 0 1px color-mix(in srgb, #000 12%, transparent);
+  pointer-events: none;
+}
+.showcase__pill[data-ready="true"] {
+  transition:
+    left 350ms cubic-bezier(0.32, 0.72, 0, 1),
+    width 350ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+/* HeroUI's own moving underline has nothing to mark here: the pill is the
+   selection. */
+.showcase__tab .tabs__indicator {
+  display: none;
+}
+
+.showcase__timer {
+  position: absolute;
+  z-index: 2;
+  bottom: 0;
+  overflow: hidden;
+  height: 2px;
+  pointer-events: none;
+  transition:
+    left 350ms cubic-bezier(0.32, 0.72, 0, 1),
+    width 350ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.showcase__timer-fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--accent);
+  animation: showcase-timer linear forwards;
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+@keyframes showcase-timer {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.showcase__toggle {
+  display: flex;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  align-items: center;
+  align-self: center;
+  justify-content: center;
+  padding: 0;
+  margin-inline-start: auto;
+  margin-inline-end: 20px;
+  border: 1px solid var(--landing-line, var(--separator));
+  border-radius: 999px;
+  background: var(--background);
+  color: var(--foreground);
+  cursor: pointer;
+  transition:
+    background-color 200ms var(--ease-out-cubic),
+    color 200ms var(--ease-out-cubic);
+}
+.showcase__toggle:hover {
+  background: color-mix(in srgb, var(--foreground) 7%, var(--background));
+}
+.showcase__toggle:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 60%, transparent);
+  outline-offset: 2px;
+}
+
+.showcase__frame {
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  height: 660px;
+  background: var(--surface);
+}
+/* The real sidebar, at the width a workspace opens on. It stands outside the
+   panels because it does not change with the tab: the product has one sidebar,
+   not four. */
+.showcase__sidebar {
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  width: 232px;
+  flex: none;
+  border-inline-end: 1px solid var(--separator);
+  background: var(--background);
+  pointer-events: none;
+  user-select: none;
+}
+.showcase__sidebar .workspace-sidebar__rail {
+  display: none;
+}
+.showcase__stage {
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  flex: 1;
+}
+.showcase__background {
+  position: absolute;
+  z-index: 3;
+  right: 16px;
+  bottom: 16px;
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px 6px 8px;
+  border: 1px solid var(--separator);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  box-shadow: 0 5px 20px #00000006;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+  gap: 8px;
+  backdrop-filter: blur(16px);
+  cursor: pointer;
+  pointer-events: auto;
+  user-select: none;
+}
+.showcase__panel {
+  position: absolute;
+  display: flex;
+  inset: 0;
+  min-height: 0;
+}
+/* The product, out of reach. `inert` already takes the subtree off the
+   accessibility tree and out of the tab order; this stops the pointer, so
+   nothing inside hovers, drags, opens or scrolls. */
+.showcase__surface {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ---- Whiteboard --------------------------------------------------------- */
+/* React Flow measures its parent, so the parent has to have a size of its own
+   rather than one it gets from the flow. */
+.showcase-board {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+}
+/* The board is framed with fitView, and a card that cannot be dragged should
+   not say it can be. */
+.showcase-board .react-flow__node {
+  cursor: default;
+}
+.showcase-board .task-handle {
+  opacity: 0.55;
+}
+
+/* ---- List --------------------------------------------------------------- */
+.showcase-list {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
+/* ---- Sheets ------------------------------------------------------------- */
+/* The team and the runners are windows, and a window opens over the workspace.
+   Drawing them that way is both what the product does and what keeps the frame
+   full: the board is behind the glass rather than a void. Each one takes the
+   width its own dialog opens on. */
+.showcase-sheet {
+  position: relative;
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: 24px var(--landing-gutter, 40px);
+}
+.showcase-sheet__behind {
+  position: absolute;
+  display: flex;
+  inset: 0;
+}
+.showcase-sheet__scrim {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--background) 66%, transparent);
+  backdrop-filter: blur(3px);
+}
+/* The page the panel draws, not a card: the cards inside it are --surface, and
+   on a light theme that left white on white with nothing to tell them apart. */
+.showcase-sheet__panel {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  max-height: 100%;
+  padding: 20px;
+  border: 1px solid var(--separator);
+  border-radius: var(--radius-xl);
+  background: var(--background);
+  box-shadow:
+    0 18px 48px rgb(0 0 0 / 0.22),
+    0 2px 8px rgb(0 0 0 / 0.12);
+}
+.showcase-sheet__panel[data-width="team"] {
+  max-width: 600px;
+}
+.showcase-sheet__panel[data-width="runners"] {
+  max-width: 900px;
+}
+
+/* ---- Runners ------------------------------------------------------------ */
+/* The crew window's grid of machine cards, at the width it opens on. The
+   frame cannot be scrolled, so the cards are clipped rather than given a
+   scrollbar nobody can reach. */
+.showcase-runners {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
+  align-items: start;
+  gap: 12px;
+  overflow: hidden;
+}
+
+/* ---- Narrow ------------------------------------------------------------- */
+@media (max-width: 719px) {
+  /* The switch belongs to the frame rather than to the product, so it does not
+     travel with the surface's zoom and has to be taken down on its own. */
+  .showcase__background {
+    right: 10px;
+    bottom: 10px;
+    zoom: 0.78;
+  }
+  .showcase__switch {
+    height: 40px;
+    min-width: 0;
+    flex: 1 1 auto;
+    padding: 3px;
+    margin-inline: 12px 8px;
+  }
+  .showcase__list {
+    gap: 2px;
+  }
+  .showcase__tab {
+    height: 34px;
+    padding: 0 10px;
+    font-size: 13px;
+    gap: 6px;
+  }
+  .showcase__tab svg {
+    width: 16px;
+    height: 16px;
+  }
+  .showcase__toggle {
+    width: 30px;
+    height: 30px;
+    margin-inline-end: 12px;
+  }
+  /* No room beside the panel for a sidebar on a phone, and a rail with nothing
+     legible in it is worse than none. */
+  .showcase__sidebar {
+    display: none;
+  }
+  .showcase__frame {
+    height: 430px;
+  }
+  /* The product draws itself at the size a desktop reads it at, so a phone-wide
+     frame was showing a corner of a window rather than the window. The whole
+     surface is taken down instead, which is the one move that keeps every panel
+     in proportion with itself — the runner's cards, the list's rows and the
+     board's nodes all shrink together, and the frame holds the thing entire. */
+  .showcase__surface {
+    zoom: 0.62;
+  }
+  .showcase-sheet {
+    padding: 14px var(--landing-gutter, 20px);
+  }
+  .showcase-sheet__panel {
+    padding: 14px;
+  }
+}
+
+/* ---- Phone -------------------------------------------------------------- */
+/* What the row gives up, in the order it can afford to. First the three lights:
+   they say "window", which the frame already says. Then the names of the tabs
+   nobody is on — the one standing in the pill still says what it is, and the
+   other three are their icon, which is how four pages fit across a phone
+   without any of them being cut in half. */
+@media (max-width: 599px) {
+  .showcase__dots {
+    display: none;
+  }
+}
+@media (max-width: 429px) {
+  .showcase__tab:not([data-selected]) .showcase__tab-label {
+    display: none;
+  }
+}
+
+/* ---- Motion ------------------------------------------------------------- */
+/* A visitor who asked for reduced motion gets the panel it is, with no fade
+   under the swap. */
+@media (prefers-reduced-motion: no-preference) {
+  .showcase__panel {
+    animation: showcase-panel 320ms var(--ease-out-cubic);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .showcase__timer {
+    display: none;
+  }
+  .showcase__pill,
+  .showcase__tab {
+    transition: none;
+  }
+}
+@keyframes showcase-panel {
+  from {
+    opacity: 0;
+  }
+}

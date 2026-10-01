@@ -1,0 +1,519 @@
+.task-files {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.task-files__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.task-files__counts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+.task-files__actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.task-files__added {
+  color: var(--success);
+}
+.task-files__removed {
+  color: var(--danger);
+}
+.task-files__sha {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.task-files__latest {
+  color: var(--muted);
+}
+.task-files-map {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 320px;
+  flex: 1;
+  overflow: hidden;
+  border-radius: 12px;
+  background: color-mix(in oklab, var(--foreground) 5%, var(--map-stage));
+}
+
+/* The rail holds the whole history at one width, so the zoom on its right
+   never changes what a commit looks like. */
+.task-files-map__rail {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--rail-width, 344px);
+  overflow: hidden;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 14px,
+    #000 calc(100% - 18px),
+    transparent 100%
+  );
+}
+.task-files-map__rail-list {
+  display: block;
+  height: 100%;
+  margin: 0;
+  padding: 0 30px 0 12px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+  scrollbar-width: none;
+}
+.task-files-map__rail-list::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+.task-files-map__rail-list li {
+  margin: 0;
+}
+.task-files-map__rail-day {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+.task-files-map__rail-row {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+}
+.task-files-map__rail-card {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  padding: 0 10px;
+  border: 1.5px solid transparent;
+  border-radius: 11px;
+  background: color-mix(in oklab, var(--foreground) 9%, var(--map-stage));
+  color: var(--foreground);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 140ms var(--ease-out, ease-out),
+    border-color 140ms var(--ease-out, ease-out),
+    opacity 140ms var(--ease-out, ease-out);
+}
+.task-files-map__rail-card:hover {
+  background: color-mix(in oklab, var(--foreground) 14%, var(--map-stage));
+}
+.task-files-map__rail-card.is-chosen {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, var(--map-stage));
+}
+.task-files-map__rail-card.is-lost {
+  border-color: color-mix(in srgb, var(--danger) 55%, transparent);
+  border-style: dashed;
+}
+.task-files-map__rail-card.is-dim {
+  opacity: 0.35;
+}
+.task-files-map__rail-title {
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.task-files-map__rail-meta {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 10.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.task-files-map__rail-sha {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.task-files-map__rail-dot {
+  position: absolute;
+  top: 50%;
+  right: -18px;
+  width: 11px;
+  height: 11px;
+  border: 2.5px solid var(--map-stage);
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--foreground) 78%, var(--map-stage));
+  transform: translate(50%, -50%);
+  transition:
+    width 140ms var(--ease-out, ease-out),
+    height 140ms var(--ease-out, ease-out),
+    background-color 140ms var(--ease-out, ease-out);
+}
+.task-files-map__rail-row:hover .task-files-map__rail-dot {
+  background: var(--foreground);
+}
+.task-files-map__rail-card.is-chosen ~ .task-files-map__rail-dot {
+  width: 15px;
+  height: 15px;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+.task-files-map__rail-card.is-lost ~ .task-files-map__rail-dot {
+  background: var(--danger);
+}
+
+/* The line runs the full height of the stage: the history it carries reaches
+   past whatever part of it the rail happens to be showing. */
+.task-files-map__spine {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  bottom: 0;
+  left: var(--spine-x, 332px);
+  width: 1.5px;
+  background: color-mix(in oklab, var(--map-link) 80%, var(--foreground));
+}
+.task-files-map__world {
+  position: absolute;
+  display: block;
+  top: 0;
+  bottom: 0;
+  left: var(--rail-width, 344px);
+  right: 0;
+}
+.task-files-map__wires {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.task-files-map__world text {
+  font-family: inherit;
+}
+.task-files-map__world :focus {
+  outline: none;
+}
+.task-files-map__world :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.task-files-map__land {
+  fill: color-mix(in srgb, var(--land-tint, transparent) 7%, var(--surface));
+  stroke: none;
+}
+.task-files-map__land-label {
+  fill: color-mix(in srgb, var(--land-tint, transparent) 65%, var(--map-label));
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+}
+.task-files-map__cell {
+  cursor: pointer;
+  transition: opacity 150ms var(--ease-out, ease-out);
+}
+.task-files-map__land-group {
+  transition: opacity 150ms var(--ease-out, ease-out);
+}
+.task-files-map__face {
+  fill: color-mix(in srgb, var(--file-tint) 20%, var(--background));
+  stroke: none;
+}
+.task-files-map__cell text {
+  fill: var(--foreground);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10.5px;
+  pointer-events: none;
+}
+/* The chosen commit carries the whole picture, so the rest steps back far
+   enough to stop competing for the eye. */
+.task-files-map__cell.is-dim {
+  opacity: 0.3;
+}
+.task-files-map__land-group.is-dim {
+  opacity: 0.45;
+}
+.task-files-map__cell.is-lit .task-files-map__face {
+  fill: color-mix(in srgb, var(--file-tint) 48%, var(--background));
+  stroke: color-mix(in srgb, var(--file-tint) 85%, transparent);
+  stroke-width: 1.2;
+}
+.task-files-map__cell:hover .task-files-map__face,
+.task-files-map__cell.is-picked .task-files-map__face {
+  fill: color-mix(in srgb, var(--file-tint) 62%, var(--background));
+  stroke: var(--accent);
+  stroke-width: 1.6;
+}
+.task-files-map__cell:hover {
+  opacity: 1;
+}
+.task-files-map__bar {
+  fill: transparent;
+}
+.task-files-map__cell--added .task-files-map__bar,
+.task-files-map__cell--added .task-files-map__glyph {
+  fill: var(--success);
+}
+.task-files-map__cell--removed .task-files-map__bar,
+.task-files-map__cell--removed .task-files-map__glyph {
+  fill: var(--danger);
+}
+.task-files-map__cell--renamed .task-files-map__bar,
+.task-files-map__cell--renamed .task-files-map__glyph,
+.task-files-map__cell--copied .task-files-map__bar,
+.task-files-map__cell--copied .task-files-map__glyph {
+  fill: var(--warning);
+}
+.task-files-map__wire {
+  fill: none;
+  stroke: var(--wire-tint, var(--map-link));
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-opacity: 0.55;
+  pointer-events: none;
+}
+.task-files-map__wire.is-lit {
+  stroke-width: 2.4;
+  stroke-opacity: 1;
+}
+.task-files-map__plus {
+  fill: color-mix(in srgb, var(--success) 75%, var(--background));
+  color: var(--success);
+}
+.task-files-map__minus {
+  fill: color-mix(in srgb, var(--danger) 75%, var(--background));
+  color: var(--danger);
+}
+.task-files-map__legend {
+  position: absolute;
+  bottom: 10px;
+  left: calc(var(--rail-width, 344px) + 16px);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 11px;
+  pointer-events: none;
+}
+.task-files-map__legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.task-files-map__key {
+  display: inline-block;
+  width: 12px;
+  height: 10px;
+  border-radius: 3px;
+  background: color-mix(in oklab, var(--foreground) 9%, var(--background));
+  box-shadow: inset 2.5px 0 0 0 transparent;
+}
+.task-files-map__key--added {
+  box-shadow: inset 2.5px 0 0 0 var(--success);
+}
+.task-files-map__key--removed {
+  box-shadow: inset 2.5px 0 0 0 var(--danger);
+}
+.task-files-map__key--renamed {
+  box-shadow: inset 2.5px 0 0 0 var(--warning);
+}
+.task-files-map__key--wire {
+  width: 16px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--map-link);
+  box-shadow: none;
+}
+.task-files-map--zoomable .task-files-map__world {
+  cursor: grab;
+  touch-action: none;
+}
+.task-files-map--zoomable .task-files-map__world:active {
+  cursor: grabbing;
+}
+.task-files-map--zoomable .task-files-map__cell {
+  cursor: pointer;
+}
+.task-files-map__zoom {
+  position: absolute;
+  z-index: 3;
+}
+.task-files-map__zoom--dock {
+  bottom: 12px;
+  left: calc(var(--rail-width, 344px) + (100% - var(--rail-width, 344px)) / 2);
+  transform: translateX(-50%);
+}
+.task-files-map__zoom--corner {
+  top: 8px;
+  right: 8px;
+}
+.task-files-map__zoom--corner .canvas-dock {
+  padding: 3px;
+}
+.task-files-map__zoom--corner .canvas-dock__icons button {
+  padding: 6px;
+}
+
+/* The picked file's card sits where the eye already goes for detail: the top
+   right of the land, clear of the rail and of the zoom dock. */
+.task-files-map__card {
+  position: absolute;
+  z-index: 4;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  max-width: calc(100% - var(--rail-width, 344px) - 24px);
+  width: 340px;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid color-mix(in oklab, var(--foreground) 12%, transparent);
+  border-radius: 14px;
+  background: color-mix(in oklab, var(--surface) 94%, transparent);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 12px 34px rgb(0 0 0 / 20%);
+}
+.task-files-map__card--corner {
+  top: 46px;
+}
+.task-files-map__card-project {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.task-files-map__card-project canvas {
+  border-radius: 50%;
+}
+.task-files-map__card-project-name {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 12.5px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.task-files-map__card-close {
+  margin-left: auto;
+}
+.task-files-map__card-path {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11.5px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.task-files-map__card-glyph {
+  color: var(--muted);
+}
+.task-files-map__card-glyph--added {
+  color: var(--success);
+}
+.task-files-map__card-glyph--removed {
+  color: var(--danger);
+}
+.task-files-map__card-glyph--renamed,
+.task-files-map__card-glyph--copied {
+  color: var(--warning);
+}
+.task-files-map__card-meta {
+  margin: 0;
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+}
+.task-files-map__card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.task-files-map__card-root {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid color-mix(in oklab, var(--foreground) 10%, transparent);
+}
+
+/* The workspace canvas is the whole card: no inset, no second rounded edge,
+   so every pixel of it pans, zooms and answers the pointer. */
+.task-files--canvas {
+  gap: 0;
+  padding: 0;
+}
+.task-files--canvas .task-files-map {
+  border-radius: 0;
+  background: transparent;
+}
+.task-files-empty {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+}
+.task-files-empty p {
+  margin: 0;
+  max-width: 44ch;
+  color: var(--muted);
+}
+.task-files-skeleton {
+  display: flex;
+  min-height: 320px;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: 12px;
+  background: color-mix(in oklab, var(--foreground) 5%, var(--map-stage));
+  color: var(--muted);
+}
+.task-files-skeleton span {
+  display: block;
+  width: 22px;
+  height: 22px;
+  border: 2px solid color-mix(in srgb, var(--foreground) 16%, transparent);
+  border-radius: 50%;
+  border-top-color: var(--accent);
+  animation: task-files-spin 900ms linear infinite;
+}
+@keyframes task-files-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .task-files-map__cell,
+  .task-files-map__rail-card,
+  .task-files-map__land-group {
+    transition: none;
+  }
+  .task-files-skeleton span {
+    animation: none;
+  }
+}

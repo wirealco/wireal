@@ -1,0 +1,723 @@
+/* The frame the one-errand signed-out pages are drawn in — the login card, the
+   consent screen, the verification notice. It is the landing page's idiom
+   reduced to its parts: a bounded sheet closed by dashed lines,
+   two fine dashed rails on its edges running the whole page, a square marker
+   at each of the four joints, and the dot ground outside. The tokens are the
+   landing's own formulas restated rather than inherited, so the scaffold does
+   not depend on `.landing-page` being anywhere above it. */
+
+.public-page {
+  --public-line: color-mix(in srgb, var(--foreground) 12.5%, transparent);
+  /* The sheet's one rhythm — a 16px mark over a 16px gap — stated once so the
+     rails and the sheet's own closing lines are the same dash seen turned
+     ninety degrees. The rails take it as a background; the lines take it as a
+     border image, which is the one way a horizontal rule carries the rhythm. */
+  --public-rule: repeating-linear-gradient(
+    to right,
+    var(--public-line) 0 16px,
+    var(--public-rule-gap, transparent) 16px 32px
+  );
+  --public-dot: color-mix(in srgb, var(--foreground) 7%, transparent);
+  --public-mark: 14px;
+  /* The four corners, named by the job each one turns rather than by its size,
+     so a rule reads as what it is rounding. They are HeroUI's own radius scale
+     keyed off `--radius`, which is what the buttons and cards standing on this
+     scaffold are already keyed to: move the theme's base and every corner on
+     every signed-out page moves with them. Only the top of that scale survives
+     the build — `@heroui/styles` states `--radius` and the xl/2xl/3xl steps,
+     and the smaller names resolve to nothing. The joint mark is the exception:
+     three pixels on a fourteen-pixel square is the softening the drawing takes,
+     and it stays that number whatever the theme's base does.
+     Restated here rather than inherited, for the same reason the line, the dot
+     and the marker above them are restated: /auth has no `.landing-page`
+     anywhere above it, and a scaffold that only turns the right corner when
+     the landing happens to be in the tree is not a scaffold. */
+  --public-corner-mark: 3px;
+  --public-corner-chip: var(--radius-xl);
+  --public-corner-panel: var(--radius-2xl);
+  /* HeroUI's Card corner to the pixel — `min(32px, var(--radius-3xl))`, the
+     same formula its own Card and Alert use and the same one its buttons round
+     to, so the card and the primary button inside it turn one corner. */
+  --public-corner-card: min(32px, var(--radius-3xl));
+  /* The sheet's own width, gutters excluded. */
+  --public-column: 24rem;
+  --public-gutter: 24px;
+  /* Half the sheet's own outer width — where the rails and the markers stand,
+     and where the two gutter boxes end. */
+  --public-half: calc(
+    min(100%, var(--public-column) + 2 * var(--public-gutter)) / 2
+  );
+  /* Where the outer rail stands, and with it the outer edge of the gutter box.
+     Until there is room for a rail to read as a margin there is no rail, and
+     the box runs to the viewport's own edge. */
+  --public-outer: 0px;
+  position: relative;
+  isolation: isolate;
+  /* `clip`, not `hidden`: hidden would make this a scroll container and leave
+     every sticky element inside it — the policy contents rail — stuck to a
+     box that never scrolls. */
+  overflow: clip;
+  display: flex;
+  min-height: 100dvh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* The top inset is paid in padding so the fluid, which is positioned against
+     this element's padding box, still runs under the notch instead of stopping
+     at it. The bottom inset is the footer's: it carries the same distance from
+     the sheet and from the page's end on every signed-out page, the landing
+     included, so nothing is added here. */
+  padding-block: calc(1rem + env(safe-area-inset-top)) 0;
+  padding-inline: env(safe-area-inset-left) env(safe-area-inset-right);
+  background-color: var(--background);
+  color: var(--foreground);
+}
+[data-theme="dark"] .public-page {
+  --public-dot: color-mix(in srgb, var(--foreground) 9%, transparent);
+}
+
+/* The two containers either side of the sheet, the landing page's own pair
+   restated: each one bounded by the outer rail near the viewport edge and by
+   the sheet's own rail, each filled with the same dot grid, and the ground
+   flat everywhere else. The outer rail is a second background layer on the box
+   rather than an element of its own, because the box already runs the page's
+   whole height and its outer edge is exactly where that rail belongs. Unlike
+   the landing's pair they are drawn over the field rather than under it: this
+   scaffold's field is unmasked and runs the page's whole height, and a dot
+   under an opaque canvas is a dot nobody ever sees. The glyphs still travel
+   behind them — the boxes are a dot grid on nothing else. */
+.public-page::before,
+.public-page::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  bottom: 0;
+  width: calc(50% - var(--public-half) - var(--public-outer));
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    var(--public-dot) 1px,
+    transparent 0
+  );
+  background-size: 24px 24px;
+  pointer-events: none;
+}
+.public-page::before {
+  left: var(--public-outer);
+}
+.public-page::after {
+  right: var(--public-outer);
+}
+@media (min-width: 1280px) {
+  .public-page {
+    --public-outer: 20px;
+  }
+  .public-page::before,
+  .public-page::after {
+    background-image:
+      linear-gradient(var(--public-line) 50%, transparent 50%),
+      radial-gradient(circle at 1px 1px, var(--public-dot) 1px, transparent 0);
+    background-repeat: repeat-y, repeat;
+    background-size:
+      1px 32px,
+      24px 24px;
+  }
+  .public-page::before {
+    background-position:
+      left top,
+      left top;
+  }
+  .public-page::after {
+    background-position:
+      right top,
+      left top;
+  }
+}
+
+/* A document — the guide, the two policies — is not drawn in this frame at
+   all: it takes the landing page's own sheet, and the only rule it adds to it
+   keeps the footer on the page's last line when a short document does not
+   reach it. The landing never needs that, because it is never short. */
+.public-document {
+  display: flex;
+  flex-direction: column;
+}
+.public-document > .landing-column {
+  flex: none;
+}
+.public-document > .public-page__footer--full {
+  margin-top: auto;
+}
+
+/* The ground. Pinned to the viewport, not the document, so every page draws
+   one field at one scale. Its paper is the page's own `--background`, so the
+   canvas and the bands iOS paints at either end are one colour. */
+.public-page .public-page__fluid {
+  position: fixed;
+  z-index: 0;
+}
+
+/* The sheet. Its edges are where the rails and the four markers live, so the
+   gutter is padding on this element and never a margin on what it holds. */
+.public-page__column {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  width: min(100%, calc(var(--public-column) + 2 * var(--public-gutter)));
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  /* A card is centred in the room above the footer, which stays on the page's
+     last line as it does everywhere else; the auto margins take the room
+     rather than justify-content, so the footer is never centred with it. */
+  margin-block: auto;
+  padding: var(--public-gutter);
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+  border-image: var(--public-rule) 1 0 1 0;
+}
+/* The rails. One pixel wide, drawn as a dash — a two-stop gradient at a
+   background-size of 1px 32px is a 16px mark over a 16px gap, the same rhythm
+   the sheet's closing lines carry — and run far past the sheet at both ends,
+   where the page's own clip ends them. */
+.public-page__column::before,
+.public-page__column::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  top: -100vh;
+  bottom: -100vh;
+  width: 1px;
+  background-image: linear-gradient(var(--public-line) 50%, transparent 50%);
+  background-size: 1px 32px;
+  pointer-events: none;
+}
+.public-page__column::before {
+  left: 0;
+}
+.public-page__column::after {
+  right: 0;
+}
+
+/* A marker: a 14px square on the line's own colour, filled with the ground it
+   sits on, centred on the joint it marks. The rail is the first pixel inside
+   the sheet, so each square is nudged half a pixel to sit on its centre
+   rather than on its edge.
+
+   It stays a square. The rails and the sheet's own closing lines are the
+   drawing, and a drawing sheet has square corners, so a marker that became a
+   dot would stop reading as a joint mark and start reading as a bullet. What
+   it does take is the smallest step on the page's own scale — two pixels on a
+   fourteen-pixel square, barely a softening — so that on a sheet of rounded
+   boxes these four are not the one raw right angle left on it. */
+.public-page__mark {
+  position: absolute;
+  z-index: 3;
+  width: var(--public-mark);
+  height: var(--public-mark);
+  border: 1px solid var(--public-line);
+  border-radius: var(--public-corner-mark);
+  background: var(--background);
+  pointer-events: none;
+}
+.public-page__mark--top-start {
+  top: 0;
+  left: 0;
+  transform: translate(calc(-50% + 0.5px), -50%);
+}
+.public-page__mark--top-end {
+  top: 0;
+  right: 0;
+  transform: translate(calc(50% - 0.5px), -50%);
+}
+.public-page__mark--bottom-start {
+  bottom: 0;
+  left: 0;
+  transform: translate(calc(-50% + 0.5px), 50%);
+}
+.public-page__mark--bottom-end {
+  bottom: 0;
+  right: 0;
+  transform: translate(calc(50% - 0.5px), 50%);
+}
+
+/* The card sits on the fluid the way the landing hero's words do: a hairline
+   in the frame's own colour and a quiet backdrop, so the field reads through
+   it without ever competing with a form.
+
+   The corner is stated rather than left to the component. It is the same
+   corner HeroUI's own Card turns, so nothing about the login card moves — but
+   it now turns it because the frame says so, which is what makes the auth card
+   and the landing's hero plate one box rather than two that happen to agree.
+   Everything else here is the same argument the border and the fill make:
+   the frame owns this box's drawing, not the component's defaults. */
+.public-page .public-page__card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  border: 1px solid var(--public-line);
+  border-radius: var(--public-corner-card);
+  background: color-mix(in srgb, var(--background) 86%, transparent);
+  box-shadow: none;
+}
+@supports (backdrop-filter: blur(1px)) {
+  .public-page .public-page__card {
+    backdrop-filter: blur(10px) saturate(130%);
+  }
+}
+
+/* The legal footer every signed-out page ends on — the landing, the login
+   card, the consent screen, the two policies. It is one element with one rule:
+   it sits on the ground under the sheet, never inside it, centred, at the same
+   distance from the sheet's closing line and from the page's end everywhere,
+   and it pays the bottom safe-area inset itself so the scaffold that holds it
+   need not know about it. */
+.public-page__footer {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+}
+.public-page__footer--compact {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0 6px;
+  padding: 20px 16px calc(20px + env(safe-area-inset-bottom));
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--muted);
+  text-align: center;
+}
+.public-page__footer--compact a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 120ms ease;
+}
+.public-page__footer--compact a:hover {
+  color: var(--foreground);
+}
+
+.public-page__footer--full {
+  --public-footer-line: var(
+    --public-line,
+    var(
+      --landing-line,
+      color-mix(in srgb, var(--foreground) 12.5%, transparent)
+    )
+  );
+  --public-footer-rule: repeating-linear-gradient(
+    to right,
+    var(--public-footer-line) 0 16px,
+    var(--public-rule-gap, transparent) 16px 32px
+  );
+  --public-footer-gutter: var(--landing-gutter, 40px);
+  --public-footer-mark: var(--public-mark, var(--landing-mark, 14px));
+  --public-footer-mark-corner: var(
+    --public-corner-mark,
+    var(--landing-corner-mark, 3px)
+  );
+  z-index: auto;
+  width: calc(100% - 2 * var(--landing-inset, 0px));
+  max-width: calc(
+    var(--public-column, 1120px) + 2 * var(--public-gutter, 40px)
+  );
+  margin-inline: auto;
+  padding: 0 var(--public-footer-gutter)
+    calc(24px + env(safe-area-inset-bottom));
+  border-top: 1px solid transparent;
+  border-image: var(--public-footer-rule) 1 0 0 0;
+  background: var(--public-tone-raise, var(--background));
+  color: var(--foreground);
+}
+.landing-column + .public-page__footer--full {
+  border-top-width: 0;
+}
+.public-footer__brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 40px 0;
+}
+.public-footer__groups {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 40px;
+  padding-bottom: 48px;
+}
+.public-footer__group h2 {
+  margin: 0 0 18px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+.public-footer__group ul {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  flex-direction: column;
+  gap: 10px;
+  list-style: none;
+}
+.public-footer__group a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--foreground);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.45;
+  text-decoration: none;
+  text-underline-offset: 3px;
+}
+.public-footer__group a:hover,
+.public-footer__group a:focus-visible {
+  text-decoration: underline;
+}
+.public-footer__group svg {
+  flex: none;
+}
+.public-footer__bottom {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-inline: calc(-1 * var(--public-footer-gutter));
+  padding: 18px var(--public-footer-gutter) 0;
+  border-top: 1px solid transparent;
+  border-image: var(--public-footer-rule) 1 0 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.public-footer__bottom::before,
+.public-footer__bottom::after {
+  content: "";
+  position: absolute;
+  z-index: 4;
+  top: 0;
+  width: var(--public-footer-mark);
+  height: var(--public-footer-mark);
+  border: 1px solid var(--public-footer-line);
+  border-radius: var(--public-footer-mark-corner);
+  background: var(--public-tone-raise, var(--background));
+  pointer-events: none;
+}
+.public-footer__bottom::before {
+  left: 0;
+  transform: translate(calc(-50% + 0.5px), -50%);
+}
+.public-footer__bottom::after {
+  right: 0;
+  transform: translate(calc(50% - 0.5px), -50%);
+}
+.public-footer__legal {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.public-footer__legal a {
+  color: inherit;
+  text-decoration: none;
+  text-underline-offset: 3px;
+  transition: color 120ms ease;
+}
+.public-footer__legal a:hover,
+.public-footer__legal a:focus-visible {
+  color: var(--foreground);
+  text-decoration: underline;
+}
+
+@media (max-width: 1023px) {
+  .public-footer__groups {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 719px) {
+  .public-footer__bottom::before,
+  .public-footer__bottom::after {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .public-page__footer--full {
+    --public-footer-gutter: 16px;
+  }
+  .public-footer__brand {
+    padding: 32px 0;
+  }
+  /* Two columns still fit on a phone — the longest link is a line and a half
+     at this size — and four short lists stacked into one ran the footer on
+     twice as long as the page above it. */
+  .public-footer__groups {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px 20px;
+    padding-bottom: 36px;
+  }
+  .public-footer__group h2 {
+    margin-bottom: 12px;
+  }
+  .public-footer__group a {
+    font-size: 14px;
+  }
+  .public-footer__bottom {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+/* On a phone there is no room beside the sheet, so it goes full bleed and the
+   rails ride the edges of the viewport, as they do on the landing page. */
+@media (max-width: 767px) {
+  .public-page {
+    --public-gutter: 16px;
+  }
+}
+
+/* The one link the public chrome carries beside the language and theme
+   controls: the setup guide, sized to sit level with those two buttons. */
+.public-header__brand {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+}
+.public-header__brand > a {
+  flex: none;
+}
+.public-header__nav {
+  --public-glider-line: var(--border);
+  position: relative;
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 2px;
+}
+[data-theme="dark"] .public-header__nav {
+  --public-glider-line: color-mix(in srgb, var(--foreground) 24%, transparent);
+}
+.public-header__glider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border: 1px solid var(--public-glider-line);
+  border-radius: var(--radius-3xl);
+  background: var(--control-wash);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform 300ms var(--ease-out-expo),
+    width 300ms var(--ease-out-expo),
+    opacity 200ms var(--ease-out);
+}
+.public-header__glider[data-lit] {
+  opacity: 1;
+}
+.public-header__link {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  height: 36px;
+  align-items: center;
+  border-radius: var(--radius-3xl);
+  padding-inline: 12px;
+  color: var(--default-foreground);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  text-decoration: none;
+  transition: color 200ms var(--ease-out-expo);
+}
+@media (min-width: 768px) {
+  .public-header__link {
+    height: 32px;
+  }
+}
+.public-header__link:hover {
+  color: var(--foreground);
+}
+.public-header__link:active {
+  color: var(--foreground);
+}
+.public-header__link:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.public-header__actions .button--tertiary,
+.landing-header__actions .button--tertiary {
+  --button-bg: var(--control-wash);
+  --button-bg-hover: var(--control-wash);
+  --button-bg-pressed: var(--control-wash);
+}
+
+:is(.public-header__actions, .landing-header__actions) .button,
+.landing-cta {
+  --button-veil: 0.08;
+  transition:
+    transform 250ms var(--ease-smooth),
+    translate 160ms var(--ease-out-quad),
+    background-color 100ms var(--ease-out),
+    box-shadow 100ms var(--ease-out);
+}
+:is(.public-header__actions, .landing-header__actions) .button--primary,
+.landing-cta {
+  --button-veil: 0.22;
+  --button-bg-hover: var(--accent);
+  --button-bg-pressed: var(--accent);
+}
+:is(.public-header__actions, .landing-header__actions) .button::before,
+:is(.public-header__actions, .landing-header__actions) .button::after,
+.landing-cta::before,
+.landing-cta::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -1px;
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+}
+:is(.public-header__actions, .landing-header__actions) .button::before,
+.landing-cta::before {
+  background: currentColor;
+  transition: opacity 160ms var(--ease-in-quad);
+}
+:is(.public-header__actions, .landing-header__actions) .button::after,
+.landing-cta::after {
+  border: 1px solid currentColor;
+  transition: opacity 600ms var(--ease-out-quad) 100ms;
+}
+@media (hover: hover) {
+  :is(.public-header__actions, .landing-header__actions)
+    .button:is(:hover, [data-hovered="true"])::before,
+  .landing-cta:is(:hover, [data-hovered="true"])::before {
+    opacity: var(--button-veil);
+  }
+}
+:is(.public-header__actions, .landing-header__actions)
+  .button:is(:focus-visible, [data-focus-visible="true"])::before,
+.landing-cta:is(:focus-visible, [data-focus-visible="true"])::before {
+  opacity: var(--button-veil);
+}
+:is(.public-header__actions, .landing-header__actions)
+  .button:is(:active, [data-pressed="true"]),
+.landing-cta:is(:active, [data-pressed="true"]) {
+  translate: 0 1px;
+}
+:is(.public-header__actions, .landing-header__actions)
+  .button:is(:active, [data-pressed="true"])::before,
+.landing-cta:is(:active, [data-pressed="true"])::before {
+  opacity: var(--button-veil);
+  transition: none;
+}
+:is(.public-header__actions, .landing-header__actions)
+  .button:is(:active, [data-pressed="true"])::after,
+.landing-cta:is(:active, [data-pressed="true"])::after {
+  opacity: 1;
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .public-header__glider,
+  .public-header__link,
+  :is(.public-header__actions, .landing-header__actions) .button,
+  :is(.public-header__actions, .landing-header__actions) .button::before,
+  :is(.public-header__actions, .landing-header__actions) .button::after,
+  .landing-cta,
+  .landing-cta::before,
+  .landing-cta::after {
+    transition-duration: 1ms;
+    transition-delay: 0ms;
+  }
+}
+
+/* ---- The title block a read page opens with ------------------------------ */
+
+/* The guide, the changelog and the two policies all start the same way: the
+   page's name centred in the column, with its label over it and its lead — and
+   on a policy its revision line — under it. Centred and centred only here: the
+   contents rail, the sidebar and every line of prose below the band keep the
+   left margin, so the block reads as a title rather than as a page that has
+   been centred. The band's own tone, rails, closing line and markers are the
+   sheet's, so nothing of the frame is stated here. */
+.landing-section.document-hero {
+  /* The room a revision line takes when a page carries one: the block's own
+     gap, the line's margin and the line itself. */
+  --document-hero-meta: calc(14px + 4px + 12px * 1.4);
+  --document-hero-head: clamp(48px, 8vw, 84px);
+  --document-hero-foot: clamp(44px, 6vw, 68px);
+  padding-top: var(--document-hero-head);
+  padding-bottom: var(--document-hero-foot);
+}
+/* Four documents open with this band, and it closes on the same line in all
+   four whatever their own sentence runs to: the lead is given the room of two
+   lines whether it needs one or two, and a page with a revision line takes that
+   line out of the band's own air, half from each end, rather than adding it to
+   the band. A sentence
+   long enough to need a third line — which is what a phone makes of most of
+   them — still gets it; the room is a floor, not a ceiling. */
+.landing-section.document-hero:has(.document-hero__meta) {
+  padding-top: max(
+    24px,
+    calc(var(--document-hero-head) - var(--document-hero-meta) / 2)
+  );
+  padding-bottom: max(
+    24px,
+    calc(var(--document-hero-foot) - var(--document-hero-meta) / 2)
+  );
+}
+.document-hero__body {
+  display: flex;
+  max-width: 46rem;
+  flex-direction: column;
+  align-items: center;
+  margin-inline: auto;
+  gap: 14px;
+  text-align: center;
+}
+.document-hero__eyebrow {
+  margin: 0;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.document-hero__title {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  text-wrap: balance;
+}
+.document-hero__lead {
+  min-height: 3.1em;
+  max-width: 38rem;
+  margin: 0;
+  color: var(--muted);
+  font-size: clamp(0.9375rem, 1.3vw, 1.0625rem);
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+/* The revision line stands apart from the sentence above it rather than on a
+   rule of its own: a hairline drawn the width of a date is a tick, and one
+   drawn the width of the block would be a second closing line under a band
+   that already has one. */
+.document-hero__meta {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.01em;
+  line-height: 1.4;
+}

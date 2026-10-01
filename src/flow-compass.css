@@ -1,0 +1,161 @@
+.flow-compass__anchor {
+  display: none;
+}
+
+.flow-compass {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 4;
+  width: min(300px, calc(100% - 32px));
+  padding: 4px;
+  color: var(--foreground);
+  background: none;
+  pointer-events: none;
+}
+.flow-compass__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.flow-compass__title {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.flow-compass__axes {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 9px 0 1px;
+}
+.flow-compass__axis--flow {
+  color: color-mix(in srgb, var(--accent) 85%, transparent);
+}
+.flow-compass__axis--order {
+  color: color-mix(in srgb, var(--foreground) 34%, transparent);
+}
+.flow-compass__label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+.flow-compass__captions {
+  display: grid;
+  gap: 4px;
+}
+.flow-compass__caption {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+.flow-compass__caption-mark {
+  flex: none;
+  margin-top: 3px;
+}
+.flow-compass__caption--flow .flow-compass__caption-mark {
+  color: color-mix(in srgb, var(--accent) 85%, transparent);
+}
+.flow-compass__caption--order .flow-compass__caption-mark {
+  color: color-mix(in srgb, var(--foreground) 34%, transparent);
+}
+.flow-compass__legend {
+  display: grid;
+  gap: 8px;
+  margin-top: 11px;
+  padding-top: 11px;
+  border-top: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
+}
+.flow-compass__row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 11.5px;
+  line-height: 1.35;
+}
+.flow-compass__glyph {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 22px;
+  height: 16px;
+}
+.flow-compass__glyph--card {
+  color: color-mix(in srgb, var(--foreground) 32%, transparent);
+}
+.flow-compass__glyph--wire {
+  color: color-mix(in srgb, var(--accent) 85%, transparent);
+}
+.flow-compass__glyph .activity-bloub {
+  width: 16px;
+  height: 16px;
+  box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--surface) 80%, transparent);
+}
+.flow-compass__shortcuts {
+  display: grid;
+  gap: 7px;
+  margin-top: 12px;
+  padding-top: 11px;
+  border-top: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
+}
+.flow-compass__shortcuts .board-shortcuts {
+  padding: 0;
+}
+
+@media (max-width: 580px) {
+  .flow-compass {
+    left: 8px;
+    right: 8px;
+    width: auto;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .flow-compass {
+    animation: flow-compass-enter 150ms ease-out;
+  }
+}
+@media (prefers-reduced-motion: no-preference) and (max-width: 580px) {
+  .flow-compass {
+    animation-name: flow-compass-enter-phone;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flow-compass {
+    animation: flow-compass-fade 120ms ease-out;
+  }
+}
+@keyframes flow-compass-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes flow-compass-enter-phone {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes flow-compass-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

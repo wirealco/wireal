@@ -1,0 +1,98 @@
+/* The workflow strip rides along the top of the board. Each pill is HeroUI's
+   own toggle and icon button inside a ground tinted with the workflow's
+   colour, the same colour its tasks glow in below. */
+.workflow-strip {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  width: max-content;
+  max-width: min(calc(100vw - 32px), 960px);
+  padding: 4px;
+}
+.workflow-strip__all {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.workflow-strip__all:hover {
+  color: var(--foreground);
+}
+/* A workflow reads like a line of the commit map's legend: a small rounded
+   key in its colour, then plain text on nothing. */
+.workflow-pill {
+  --workflow-color: var(--accent);
+  display: inline-flex;
+  border-radius: 4px;
+}
+.workflow-pill__main {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 3px;
+  border-radius: 4px;
+  color: var(--muted);
+  font-size: 11px;
+  cursor: pointer;
+  transition: color 140ms ease;
+}
+.workflow-pill__main:hover {
+  color: var(--foreground);
+}
+.workflow-pill__main[aria-pressed="true"] {
+  color: var(--workflow-color);
+  font-weight: 600;
+}
+.workflow-pill__main:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.workflow-pill__key {
+  display: inline-block;
+  flex: none;
+  width: 12px;
+  height: 10px;
+  border-radius: 3px;
+  background: color-mix(in oklab, var(--workflow-color) 22%, var(--background));
+  box-shadow: inset 2.5px 0 0 0 var(--workflow-color);
+}
+.workflow-pill__name {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.workflow-pill__count {
+  opacity: 0.7;
+  font-variant-numeric: tabular-nums;
+}
+.workflow-pill[data-over] .workflow-pill__main {
+  color: var(--workflow-color);
+  outline: 1px dashed var(--workflow-color);
+}
+.workflow-dot {
+  width: 9px;
+  height: 9px;
+  flex: none;
+  border-radius: 3px;
+  background: var(--workflow-color);
+}
+
+/* The glow a task wears for the workflows it is in. The rings come from
+   workflowGlow; hovering a card keeps them under its own lift shadow. */
+.task-card[data-workflow] {
+  box-shadow: var(--workflow-glow);
+}
+.workspace-board [data-relation="self"] .task-card[data-workflow] {
+  box-shadow:
+    0 12px 24px color-mix(in srgb, #000 22%, transparent),
+    var(--workflow-glow);
+}
+.task-card[data-workflow][data-review] {
+  box-shadow:
+    0 0 0 1px var(--activity-review),
+    var(--workflow-glow);
+}

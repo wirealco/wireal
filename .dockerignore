@@ -1,0 +1,13 @@
+.git
+node_modules
+dist
+dist-runner
+.env
+.env.*
+.certs
+.wrangler
+.wireal
+backend
+coverage
+test-results
+playwright-report

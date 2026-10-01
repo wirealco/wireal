@@ -1,0 +1,10 @@
+**/bin/
+**/obj/
+artifacts/
+keys/
+logs/
+TestResults/
+*.local.json
+Wireal.Api.Tests/
+deploy/
+global.json

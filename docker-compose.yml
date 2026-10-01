@@ -1,0 +1,148 @@
+# Self-hosted Wireal. Copy .env.example to .env, fill it in, then:
+#
+#   docker compose up -d --build
+#
+# README.md ("Self-host with Docker Compose") walks through it, including
+# backups and upgrades. Only Caddy publishes ports; PostgreSQL, the API, the
+# web app and the MCP server are reachable only on the internal network.
+
+name: wireal
+
+x-database: &database
+  ConnectionStrings__Postgres: Host=postgres;Port=5432;Database=wireal;Username=wireal;Password=${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+
+services:
+  postgres:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: wireal
+      POSTGRES_DB: wireal
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wireal -d wireal"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  # Applies pending migrations, then exits. `docker compose up` runs it before
+  # every start of the API, so an upgrade migrates on its own.
+  migrate:
+    image: wireal/api:local
+    build: ./backend
+    entrypoint: ["/app/migrate/efbundle"]
+    environment:
+      <<: *database
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    image: wireal/api:local
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      <<: *database
+      # The compose network is private to this host, so the database
+      # connection needs no TLS (production otherwise demands it).
+      Database__PrivateNetwork: "true"
+      AllowedHosts: ${WIREAL_API_HOST:?Set WIREAL_API_HOST in .env}
+      App__ClientOrigin: https://${WIREAL_APP_HOST:?Set WIREAL_APP_HOST in .env}
+      App__PublicApiOrigin: https://${WIREAL_API_HOST}
+      App__McpResource: https://${WIREAL_MCP_HOST:?Set WIREAL_MCP_HOST in .env}
+      Authentication__Jwt__Issuer: https://${WIREAL_API_HOST}
+      Authentication__Jwt__Audience: wireal-api
+      Authentication__Jwt__SigningKey: ${WIREAL_JWT_SIGNING_KEY:?Set WIREAL_JWT_SIGNING_KEY in .env}
+      # true: only WIREAL_ADMIN_EMAIL and people invited to a workspace may
+      # register. false: anyone who can reach the app may.
+      Authentication__WhitelistEnabled: ${WIREAL_INVITE_ONLY:-true}
+      Authentication__AllowedEmails__0: ${WIREAL_ADMIN_EMAIL:-}
+      Authentication__GitHub__AllowedUserIds__0: ${WIREAL_ADMIN_GITHUB_ID:-}
+      # Caddy's fixed address below; the API trusts forwarded headers from it only.
+      Security__KnownProxies__0: 172.30.57.10
+      Security__KeyDirectory: /var/lib/wireal/keys
+      Logging__Directory: /var/lib/wireal/logs
+      # Optional integrations: leave empty to turn them off.
+      Cloudflare__Turnstile__SiteKey: ${TURNSTILE_SITE_KEY:-}
+      Cloudflare__Turnstile__SecretKey: ${TURNSTILE_SECRET_KEY:-}
+      Cloudflare__Turnstile__Hostnames__0: ${WIREAL_APP_HOST}
+      Cloudflare__Turnstile__Hostnames__1: ${WIREAL_API_HOST}
+      Cloudflare__Email__AccountId: ${CLOUDFLARE_EMAIL_ACCOUNT_ID:-}
+      Cloudflare__Email__ApiToken: ${CLOUDFLARE_EMAIL_API_TOKEN:-}
+      Cloudflare__Email__FromAddress: ${CLOUDFLARE_EMAIL_FROM:-}
+      GitHub__App__AppId: ${GITHUB_APP_ID:-0}
+      GitHub__App__Slug: ${GITHUB_APP_SLUG:-}
+      GitHub__App__ClientId: ${GITHUB_APP_CLIENT_ID:-}
+      GitHub__App__ClientSecret: ${GITHUB_APP_CLIENT_SECRET:-}
+      GitHub__App__PrivateKeyPath: ${GITHUB_APP_PRIVATE_KEY_PATH:-}
+    volumes:
+      - keys:/var/lib/wireal/keys
+      - logs:/var/lib/wireal/logs
+      # Put a GitHub App private key here and set
+      # GITHUB_APP_PRIVATE_KEY_PATH=/run/wireal-secrets/github-app.pem.
+      - ./secrets:/run/wireal-secrets:ro
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/web/Dockerfile
+      args:
+        VITE_API_URL: https://${WIREAL_API_HOST}
+        VITE_MCP_URL: https://${WIREAL_MCP_HOST}/mcp
+    restart: unless-stopped
+
+  mcp:
+    build:
+      context: .
+      dockerfile: docker/mcp/Dockerfile
+    restart: unless-stopped
+    environment:
+      WIREAL_API_URL: https://${WIREAL_API_HOST}
+      MCP_PUBLIC_URL: https://${WIREAL_MCP_HOST}
+      WIREAL_APP_URL: https://${WIREAL_APP_HOST}
+      WIREAL_AGENT_NAME: Agent
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on: [api, web, mcp]
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      WIREAL_APP_HOST: ${WIREAL_APP_HOST}
+      WIREAL_API_HOST: ${WIREAL_API_HOST}
+      WIREAL_MCP_HOST: ${WIREAL_MCP_HOST}
+    volumes:
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      default:
+        ipv4_address: 172.30.57.10
+        # The MCP server calls the API by its public name; inside the network
+        # that name leads straight here.
+        aliases:
+          - ${WIREAL_API_HOST}
+
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: 172.30.57.0/24
+
+volumes:
+  postgres:
+  keys:
+  logs:
+  caddy_data:
+  caddy_config:

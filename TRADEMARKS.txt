@@ -1,0 +1,14 @@
+Wireal trademarks
+=================
+
+The Wireal source code is licensed under the GNU Affero General Public License
+v3.0 only (see LICENSE). That licence covers the code. It does not grant any
+right to use the Wireal name, the Wireal logo (public/logo.png,
+public/favicon.png) or other Wireal branding.
+
+You may fork, modify, run and distribute the code under the AGPL. If you
+distribute a modified version or offer one as a service, give it your own name
+and logo, and do not present it as Wireal or as endorsed by Wireal. Stating
+accurately that your project is based on Wireal is fine.
+
+Questions about using the name or logo: info@wireal.co

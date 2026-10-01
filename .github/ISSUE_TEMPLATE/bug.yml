@@ -1,0 +1,63 @@
+name: Bug report
+description: Something in Wireal does not work as it should.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Please do not report security vulnerabilities here; use private vulnerability reporting instead (see the link on the new-issue page).
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open ...
+        2. Click ...
+        3. See ...
+    validations:
+      required: true
+  - type: dropdown
+    id: part
+    attributes:
+      label: Part of Wireal
+      options:
+        - Web app
+        - Runner (wireal-run)
+        - MCP server
+        - API (backend)
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: deployment
+    attributes:
+      label: Where it runs
+      options:
+        - Hosted (wireal.co)
+        - Self-hosted
+        - Local development
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Wireal or wireal-run version, or the commit you built from.
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Browser, operating system, Node.js version, agent CLI (Claude Code, Codex) as relevant.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      description: Remove tokens, email addresses and other private data first.
+      render: text

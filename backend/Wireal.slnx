@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Wireal.Api.Tests/Wireal.Api.Tests.csproj" />
+  <Project Path="Wireal.Api/Wireal.Api.csproj" />
+</Solution>

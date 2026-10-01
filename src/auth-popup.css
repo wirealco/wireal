@@ -1,0 +1,29 @@
+/* The sign-in popup: a centred card over the blurred page. On a phone it is
+   the same card with a margin all round, held near the top, so the keyboard
+   that opens under the fields never pushes it off the screen. */
+.modal__dialog.auth-popup__dialog {
+  width: 100%;
+  max-width: 420px;
+}
+
+.modal__body.auth-popup__body {
+  /* Room for the focus rings of the fields and buttons at the body's edges,
+     which the scrolling body would otherwise clip. */
+  margin-inline: -4px;
+  padding-inline: 4px;
+  padding-bottom: 4px;
+}
+
+@media (max-width: 767px) {
+  .modal__container.auth-popup__container {
+    width: 100%;
+    align-items: flex-start;
+    justify-content: center;
+    padding: max(16px, env(safe-area-inset-top)) 16px 16px;
+  }
+  .modal__dialog.auth-popup__dialog {
+    max-width: none;
+    margin-top: min(10vh, 72px);
+    margin-bottom: auto;
+  }
+}

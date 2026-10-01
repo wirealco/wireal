@@ -1,0 +1,3721 @@
+@import "tailwindcss";
+@import "@heroui/styles";
+@import "@xyflow/react/dist/style.css";
+@import "@fontsource-variable/figtree/wght.css";
+
+/* Figtree: a geometric sans in the family of Campton, served from this origin
+   (the CSP allows fonts only from 'self'). */
+@theme {
+  --font-sans:
+    "Figtree Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    sans-serif;
+}
+
+/* HeroUI's light theme puts white cards on a 97% page, which reads as a
+   sheet of paper. The page and every surface step down a little, keeping
+   HeroUI's zinc hue, so cards still lift off the page without glaring. */
+:root:not([data-theme="dark"]):not(.dark),
+[data-theme="light"] {
+  --background: oklch(95.2% 0.0025 286);
+  --surface: oklch(98.2% 0.0015 286);
+  --surface-secondary: oklch(94.2% 0.002 286);
+  --surface-tertiary: oklch(92.6% 0.002 286);
+  --default: oklch(92.2% 0.003 286);
+  --field-background: oklch(98.2% 0.0015 286);
+}
+
+/* Floating windows share the page canvas, while fields retain HeroUI's raised
+   field colour. Keeping this at the token level covers modals, drawers,
+   dropdowns, selects, colour pickers, popovers, and tooltips—including the
+   overlays that React Aria portals directly under the document body. */
+:root,
+[data-theme="light"] {
+  /* Anything chosen on the whiteboard and the task files map wears this. Not
+     the accent: that blue is already hover, a link, and a travelling signal. */
+  --canvas-selected: oklch(76% 0.16 68);
+  --control-wash: color-mix(in srgb, var(--foreground) 4.5%, transparent);
+  --control-wash-strong: color-mix(in srgb, var(--foreground) 9%, transparent);
+  --overlay: var(--background);
+  --overlay-foreground: var(--foreground);
+  --overlay-shadow:
+    0 0 0 1px color-mix(in srgb, var(--foreground) 7%, transparent),
+    0 18px 48px rgb(0 0 0 / 0.16);
+}
+[data-theme="dark"] {
+  --control-wash: color-mix(in srgb, var(--foreground) 13.5%, transparent);
+  --control-wash-strong: color-mix(
+    in srgb,
+    var(--foreground) 16.5%,
+    transparent
+  );
+  --overlay: var(--background);
+  --overlay-foreground: var(--foreground);
+  --overlay-shadow:
+    0 0 0 1px color-mix(in srgb, var(--foreground) 14%, transparent),
+    0 18px 48px rgb(0 0 0 / 0.48);
+}
+
+/* First-run coach marks intentionally invert the page: on the white theme the
+   bubble is ink black, with HeroUI's own arrow pointing at the live control.
+   The dark theme reverses the same relationship so the instruction does not
+   disappear into the canvas. */
+.first-run-popover {
+  --overlay: #09090b;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  border-radius: 18px;
+  color: #fafafa;
+  background: #09090b;
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.08),
+    0 18px 48px rgb(0 0 0 / 0.28);
+}
+.first-run-popover [data-slot="popover-overlay-arrow"] {
+  fill: var(--overlay);
+}
+.first-run-popover__dialog {
+  padding: 16px;
+}
+.first-run-popover__lead {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 52px;
+  align-items: start;
+  gap: 12px;
+}
+.first-run-popover__agent {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  margin-top: -3px;
+  place-items: center;
+}
+.first-run-popover__agent .activity-bloub {
+  width: 48px;
+  height: 48px;
+}
+.first-run-popover__agent .activity-bloub__face {
+  fill: #09090b;
+}
+.first-run-popover__eyebrow {
+  margin-bottom: 7px;
+  color: rgb(255 255 255 / 0.58);
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.first-run-popover__heading {
+  color: inherit;
+  font-size: 15px;
+  font-weight: 650;
+}
+.first-run-popover__description {
+  margin-top: 6px;
+  color: rgb(255 255 255 / 0.72);
+  font-size: 13px;
+  line-height: 1.48;
+}
+.first-run-popover__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 14px;
+}
+.first-run-popover__end {
+  color: rgb(255 255 255 / 0.72);
+  background: transparent;
+}
+.first-run-popover__end:hover {
+  color: #fff;
+  background: rgb(255 255 255 / 0.1);
+}
+.first-run-popover__next {
+  color: #18181b;
+  background: #fafafa;
+}
+.first-run-popover__next:hover {
+  background: #e4e4e7;
+}
+/* The control a coach mark points at wears a soft accent-blue ring. The tabs wrapper has
+   no radius of its own, so it borrows the pill's. */
+[data-tour-active="true"] {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent) 70%, transparent),
+    0 0 0 4px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+.workspace-viewbar__tabs[data-tour-active="true"] {
+  border-radius: var(--radius-xl);
+}
+[data-theme="dark"] .first-run-popover {
+  --overlay: #fafafa;
+  border-color: rgb(0 0 0 / 0.12);
+  color: #18181b;
+  background: #fafafa;
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.08),
+    0 18px 48px rgb(0 0 0 / 0.5);
+}
+[data-theme="dark"] .first-run-popover__eyebrow {
+  color: rgb(24 24 27 / 0.56);
+}
+[data-theme="dark"] .first-run-popover__description,
+[data-theme="dark"] .first-run-popover__end {
+  color: rgb(24 24 27 / 0.68);
+}
+[data-theme="dark"] .first-run-popover__end:hover {
+  color: #09090b;
+  background: rgb(0 0 0 / 0.08);
+}
+[data-theme="dark"] .first-run-popover__next {
+  color: #fafafa;
+  background: #18181b;
+}
+[data-theme="dark"] .first-run-popover__next:hover {
+  background: #3f3f46;
+}
+/* The guide bloub is the bubble's opposite too: white on the black card, black
+   on the white one. Its body is an SVG gradient, so the stops are recoloured
+   here rather than the fill. */
+[data-theme="dark"]
+  .first-run-popover__agent
+  .activity-bloub
+  stop:nth-of-type(1) {
+  stop-color: #52525b;
+}
+[data-theme="dark"]
+  .first-run-popover__agent
+  .activity-bloub
+  stop:nth-of-type(2) {
+  stop-color: #27272a;
+}
+[data-theme="dark"]
+  .first-run-popover__agent
+  .activity-bloub
+  stop:nth-of-type(3) {
+  stop-color: #09090b;
+}
+/* Outranks the guide brand's own face colour, which is declared later. */
+[data-theme="dark"]
+  .first-run-popover__agent
+  .activity-bloub[data-brand="guide"]
+  .activity-bloub__face {
+  fill: #fafafa;
+}
+
+/* Paint the browser viewport itself with HeroUI's warm light / tinted dark
+   background. iOS exposes this layer around safe areas and during rubber-band
+   scrolling, so leaving it unset produces pure white or black seams. */
+html,
+body,
+#root {
+  min-height: 100%;
+  background: var(--background);
+}
+
+.activity-bloub {
+  display: block;
+  width: 40px;
+  height: 40px;
+  aspect-ratio: 1;
+  flex-shrink: 0;
+  border-radius: 50%;
+  overflow: hidden;
+}
+.activity-bloub__face {
+  transition: transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.activity-bloub__face {
+  fill: #fafafa;
+}
+.activity-bloub[data-brand="chatgpt"] .activity-bloub__face,
+.activity-bloub[data-brand="guide"] .activity-bloub__face {
+  fill: #09090b;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .activity-bloub {
+    filter: none;
+  }
+}
+
+.project-orb-picker {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.project-orb-picker__trigger {
+  display: inline-flex;
+  border-radius: 999px;
+}
+.project-orb-picker__item {
+  position: relative;
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  padding: 2px;
+  color: var(--foreground);
+  background: transparent;
+  cursor: pointer;
+  opacity: 0.42;
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+.project-orb-picker__item:hover,
+.project-orb-picker__item:focus-visible,
+.project-orb-picker__item[data-selected="true"] {
+  opacity: 1;
+  transform: translateY(-1px);
+}
+.project-orb-picker__item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.project-orb-picker__item:disabled {
+  cursor: default;
+}
+.project-orb-picker__orb {
+  display: block;
+  overflow: hidden;
+  border-radius: 999px;
+  box-shadow: 0 3px 10px rgb(0 0 0 / 0.16);
+}
+.project-orb-picker__item[data-selected="true"] .project-orb-picker__orb {
+  box-shadow:
+    0 0 0 2px var(--background),
+    0 0 0 4px color-mix(in srgb, var(--foreground) 28%, transparent),
+    0 4px 12px rgb(0 0 0 / 0.2);
+}
+.project-orb-picker[data-mode="action"] .project-orb-picker__item {
+  opacity: 1;
+}
+/* The team panel is a plain list, not a row of orbs: the only thing it needs
+   from CSS is a hairline between rows and a hover tint that reads on both
+   themes. Everything else is a utility class on the element. */
+.workspace-team__row + .workspace-team__row {
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--border) 70%, transparent);
+}
+.workspace-team__row:hover {
+  background: color-mix(in srgb, var(--foreground) 4%, transparent);
+}
+/* iOS Safari.
+   viewport-fit=cover puts the page under the notch and the home indicator, so
+   the chrome pays those insets back itself. Only the outer edges do it — inner
+   panels stay flush — and on every other device the env() values are 0, so
+   these rules cost nothing. */
+.workspace-shell {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  /* The keyboard resizes the layout (interactive-widget=resizes-content), and
+     h-dvh follows it; this stops the page rubber-banding behind that. */
+  overscroll-behavior: none;
+}
+.workspace-header {
+  padding-top: calc(1rem + env(safe-area-inset-top));
+}
+@media (max-width: 767px) {
+  .workspace-header {
+    flex-wrap: nowrap;
+    gap: 8px;
+    min-height: calc(52px + env(safe-area-inset-top));
+    padding: calc(10px + env(safe-area-inset-top)) 12px 10px;
+  }
+  .workspace-header__context {
+    flex: 1 1 auto;
+    gap: 8px;
+    overflow: hidden;
+  }
+  .workspace-header__title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .workspace-header__actions {
+    flex: none;
+    gap: 6px;
+    margin-left: auto;
+  }
+}
+
+/* Safari inflates text in landscape unless told not to. */
+html {
+  -webkit-text-size-adjust: 100%;
+}
+/* Focus must never scroll a field under the keyboard or the notch. */
+input,
+textarea,
+select {
+  scroll-margin-block: 5rem;
+}
+
+/* Overlays and the on-screen keyboard.
+
+   React Aria measures the visual viewport, and HeroUI sizes both the backdrop
+   and the centring container to it. So focusing a field shrinks the entire
+   overlay to the strip above the keyboard: the dialog snaps into a smaller box,
+   which reads as the popup minimising itself, and the screen the backdrop has
+   stopped covering goes unblurred — the gap that shows beside the search.
+
+   Split the two jobs. The backdrop covers the screen, always, so the blur is
+   whole whatever the keyboard is doing. Only the container — which decides how
+   much room the dialog has — follows the visible area, anchored to the top so
+   the room it gives up is the room the keyboard took, and easing into its new
+   height rather than snapping to it. */
+.modal__backdrop,
+.drawer__backdrop,
+.alert-dialog__backdrop {
+  /* inset: 0 already spans the viewport; the explicit height is what has to go. */
+  height: auto;
+}
+.modal__backdrop,
+.alert-dialog__backdrop {
+  align-items: flex-start;
+}
+.modal__container,
+.alert-dialog__container {
+  transition: height 200ms var(--ease-out-cubic);
+}
+@media (prefers-reduced-motion: reduce) {
+  .modal__container,
+  .alert-dialog__container {
+    transition: none;
+  }
+}
+
+/* The tabs and their controls share one row while both fit. The measured
+   disclosure below preserves the original tab appearance when space runs out. */
+.workspace-viewbar {
+  flex-wrap: nowrap;
+}
+.workspace-viewbar__tabs {
+  min-width: 0;
+  width: max-content;
+  max-width: 100%;
+  flex: 0 0 max-content;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.workspace-viewbar__tabs > .tabs,
+.workspace-viewbar__tabs .tabs__list {
+  width: max-content;
+  min-width: 0;
+}
+.workspace-viewbar__tabs .tabs__tab {
+  width: auto;
+  flex: 0 0 auto;
+}
+.workspace-viewbar__tabs::-webkit-scrollbar {
+  display: none;
+}
+.workspace-viewbar__more {
+  display: none;
+  margin-left: auto;
+  flex: none;
+}
+.workspace-viewbar__more-icons {
+  position: relative;
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+  align-items: center;
+  justify-content: center;
+}
+.workspace-viewbar__more-icon {
+  position: absolute;
+  transition:
+    opacity 150ms var(--ease-out),
+    transform 220ms var(--ease-out-cubic);
+}
+.workspace-viewbar__more-icon--open {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+.workspace-viewbar__more-icon--close {
+  opacity: 0;
+  transform: rotate(-45deg) scale(0.78);
+}
+.workspace-viewbar__more[aria-expanded="true"]
+  .workspace-viewbar__more-icon--open {
+  opacity: 0;
+  transform: rotate(45deg) scale(0.78);
+}
+.workspace-viewbar__more[aria-expanded="true"]
+  .workspace-viewbar__more-icon--close {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+.workspace-view-tools {
+  min-width: 0;
+  flex: 1 1 0;
+  padding: 0;
+}
+.workspace-view-tools__content {
+  display: flex;
+  flex-direction: row;
+  min-width: 0;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 0;
+}
+.workspace-view-tools__actions {
+  display: flex;
+  flex-direction: row;
+  flex: none;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.workspace-task-search--wide {
+  width: 10rem;
+  flex: none;
+}
+.select__value,
+.select__value > * {
+  min-width: 0;
+  white-space: nowrap;
+}
+.select__value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.select__popover
+  [data-slot="list-box-item"]:has([data-slot="list-box-item-indicator"]) {
+  padding-inline-end: calc(var(--spacing) * 7);
+}
+.workspace-filter-status--wide {
+  width: 9rem;
+  flex: none;
+}
+.workspace-filter-status--wide > .select,
+.workspace-filter-status--wide .select__trigger {
+  width: 100%;
+  min-width: 0;
+}
+.workspace-filter-status--wide .select__value,
+.workspace-filter-status--wide .select__value > * {
+  min-width: 0;
+  white-space: nowrap;
+}
+.workspace-filter-status--wide .select__value {
+  overflow: hidden;
+}
+.workspace-filter-status--wide .select__value .chip,
+.workspace-filter-status--wide .select__value svg {
+  flex: none;
+}
+.workspace-filter-status__trigger {
+  display: none;
+}
+.workspace-list-group--wide {
+  width: 11rem;
+  flex: none;
+}
+.workspace-list-group__trigger {
+  display: none;
+}
+.workspace-commits-group--wide {
+  width: 11rem;
+  flex: none;
+}
+.workspace-commits-group__trigger {
+  display: none;
+}
+.workspace-compact-action {
+  max-width: 18rem;
+  overflow: hidden;
+  transition:
+    max-width 220ms var(--ease-out-cubic),
+    padding-inline 220ms var(--ease-out-cubic),
+    gap 180ms var(--ease-out-cubic),
+    transform 250ms var(--ease-smooth),
+    background-color 100ms var(--ease-out),
+    box-shadow 100ms var(--ease-out);
+}
+.workspace-compact-action__label {
+  display: inline-flex;
+  max-width: 14rem;
+  overflow: hidden;
+  opacity: 1;
+  transform: translateX(0);
+  transition:
+    max-width 220ms var(--ease-out-cubic),
+    opacity 150ms var(--ease-out),
+    transform 180ms var(--ease-out-cubic);
+}
+.workspace-compact-action__shortcut {
+  max-width: 3rem;
+  min-width: 0;
+  overflow: hidden;
+  opacity: 1;
+  transition:
+    max-width 180ms var(--ease-out-cubic),
+    opacity 120ms var(--ease-out);
+}
+/* The expanded toolbar is measured in the DOM for the current view and locale.
+   It compacts only when that exact content no longer fits its remaining row. */
+.workspace-view-tools__content--compact {
+  gap: 6px;
+}
+.workspace-view-tools__content--compact .workspace-task-search--wide,
+.workspace-view-tools__content--compact .workspace-filter-status--wide,
+.workspace-view-tools__content--compact .workspace-list-group--wide,
+.workspace-view-tools__content--compact .workspace-commits-group--wide {
+  display: none;
+}
+.workspace-view-tools__content--compact .workspace-filter-status__trigger,
+.workspace-view-tools__content--compact .workspace-list-group__trigger,
+.workspace-view-tools__content--compact .workspace-commits-group__trigger {
+  display: inline-flex;
+  animation: workspace-compact-control-in 180ms var(--ease-out-cubic);
+}
+.workspace-view-tools__content--compact .task-files__counts {
+  display: none;
+}
+.workspace-view-tools__content--compact .workspace-view-tools__actions {
+  gap: 4px;
+}
+.workspace-view-tools__content--compact .workspace-compact-action {
+  max-width: 32px;
+  min-width: 32px;
+  justify-content: center;
+  gap: 0;
+  padding-inline: 0;
+}
+.workspace-view-tools__content--compact
+  :is(.workspace-compact-action__label, .workspace-compact-action__shortcut) {
+  max-width: 0;
+  min-width: 0;
+  opacity: 0;
+  transform: translateX(-4px);
+}
+.workspace-view-tools__content--compact .workspace-compact-action__shortcut {
+  display: none;
+}
+
+@keyframes workspace-compact-control-in {
+  from {
+    opacity: 0;
+    transform: translateX(6px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workspace-viewbar__more-icon,
+  .workspace-view-tools,
+  .workspace-filter-status__trigger,
+  .workspace-list-group__trigger,
+  .workspace-commits-group__trigger,
+  .workspace-compact-action {
+    animation: none;
+    transition: none;
+  }
+  .workspace-compact-action__label,
+  .workspace-compact-action__shortcut {
+    transition: none;
+  }
+}
+[data-reduce-motion="true"] {
+  .workspace-viewbar__more-icon,
+  .workspace-view-tools,
+  .workspace-filter-status__trigger,
+  .workspace-list-group__trigger,
+  .workspace-commits-group__trigger,
+  .workspace-compact-action {
+    animation: none;
+    transition: none;
+  }
+  .workspace-compact-action__label,
+  .workspace-compact-action__shortcut {
+    transition: none;
+  }
+}
+
+/* The measured tab and tool widths decide when controls move below the tabs;
+   this also covers constrained desktop layouts beside an open sidebar. */
+.workspace-viewbar--disclosure {
+  & {
+    flex-wrap: wrap;
+    row-gap: 0;
+  }
+  .workspace-viewbar__tabs {
+    flex: 1 1 0;
+  }
+  .workspace-viewbar__more {
+    display: inline-flex;
+  }
+  .workspace-view-tools {
+    display: grid;
+    width: 100%;
+    min-width: 0;
+    flex: none;
+    grid-template-rows: 0fr;
+    visibility: hidden;
+    overflow: hidden;
+    padding: 0;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-5px) scale(0.98);
+    transform-origin: top right;
+    transition:
+      grid-template-rows 220ms var(--ease-out-cubic),
+      padding-top 220ms var(--ease-out-cubic),
+      opacity 150ms var(--ease-out),
+      transform 220ms var(--ease-out-cubic),
+      visibility 0s linear 220ms;
+  }
+  .workspace-view-tools > .workspace-view-tools__content {
+    min-height: 0;
+    overflow: hidden;
+  }
+  .workspace-view-tools--open {
+    grid-template-rows: 1fr;
+    visibility: visible;
+    padding-top: 4px;
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0) scale(1);
+    transition:
+      grid-template-rows 220ms var(--ease-out-cubic),
+      padding-top 220ms var(--ease-out-cubic),
+      opacity 150ms var(--ease-out),
+      transform 220ms var(--ease-out-cubic),
+      visibility 0s linear 0s;
+  }
+  .workspace-view-tools__content {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+  .workspace-view-tools__content > .workspace-task-search--wide {
+    display: none;
+  }
+  .workspace-view-tools__content > .search-field,
+  .workspace-view-tools__content > .workspace-filter-status--wide {
+    width: 100%;
+    min-width: 0;
+    flex: none;
+  }
+  .workspace-view-tools__actions {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+  .workspace-viewbar__commits {
+    width: 100%;
+    flex: none;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+  .workspace-viewbar__commits .task-files__head {
+    width: 100%;
+  }
+  .workspace-viewbar__commits .task-files__actions {
+    width: 100%;
+    margin-left: 0;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 8px;
+  }
+  .workspace-view-tools--open .workspace-view-tools__content--compact {
+    gap: 8px;
+  }
+  .workspace-view-tools--open
+    .workspace-view-tools__content--compact
+    :is(
+      .workspace-filter-status--wide,
+      .workspace-list-group--wide,
+      .workspace-commits-group--wide
+    ) {
+    display: block;
+  }
+  .workspace-view-tools--open
+    .workspace-view-tools__content--compact
+    :is(
+      .workspace-filter-status__trigger,
+      .workspace-list-group__trigger,
+      .workspace-commits-group__trigger
+    ) {
+    display: none;
+  }
+  .workspace-view-tools--open
+    .workspace-view-tools__content--compact
+    .workspace-view-tools__actions {
+    gap: 8px;
+  }
+  .workspace-view-tools--open
+    .workspace-view-tools__content--compact
+    .workspace-compact-action {
+    max-width: 18rem;
+    min-width: 0;
+    gap: 8px;
+    padding-inline: 12px;
+  }
+  .workspace-view-tools--open
+    .workspace-view-tools__content--compact
+    :is(.workspace-compact-action__label, .workspace-compact-action__shortcut) {
+    max-width: 14rem;
+    opacity: 1;
+    transform: translateX(0);
+  }
+  .workspace-view-tools--open
+    .workspace-view-tools__content--compact
+    .workspace-compact-action__shortcut {
+    display: inline-flex;
+    max-width: 3rem;
+  }
+  .workspace-view-tools--open
+    .workspace-view-tools__content--board
+    .workspace-view-tools__primary-action {
+    max-width: none;
+    min-width: 0;
+    flex: 1 1 0;
+  }
+  .workspace-view-tools--open
+    :is(
+      .workspace-view-tools__content--board,
+      .workspace-view-tools__content--list
+    )
+    .workspace-view-tools__secondary-action {
+    width: 32px;
+    max-width: 32px;
+    min-width: 32px;
+    justify-content: center;
+    gap: 0;
+    padding-inline: 0;
+  }
+  .workspace-view-tools--open
+    :is(
+      .workspace-view-tools__content--board,
+      .workspace-view-tools__content--list
+    )
+    .workspace-view-tools__secondary-action
+    .workspace-compact-action__label {
+    max-width: 0;
+    min-width: 0;
+    opacity: 0;
+    transform: translateX(-4px);
+  }
+  .workspace-view-tools--open
+    .workspace-view-tools__content--list
+    > .workspace-list-group--wide {
+    width: auto;
+    min-width: 0;
+    flex: 1 1 0;
+  }
+  .workspace-view-tools--open
+    .workspace-view-tools__content--list
+    > .workspace-view-tools__actions {
+    width: auto;
+    flex: none;
+  }
+}
+
+.workspace-sidebar-shell {
+  transition: width 200ms ease;
+}
+.workspace-sidebar-shell--resizing {
+  transition: none;
+  user-select: none;
+}
+.workspace-board {
+  --board-background: var(--background-tertiary);
+  background: var(--board-background);
+  isolation: isolate;
+}
+.workspace-board__field {
+  z-index: 0;
+  opacity: 0.35;
+}
+[data-theme="light"] .workspace-board__field {
+  opacity: 0.5;
+}
+.workspace-board__flow {
+  position: relative;
+  z-index: 1;
+  background: transparent;
+}
+/* One dock, worn by both canvases. The whiteboard and the task files map are
+   steered by the same object in the same place and it is defined once, so the
+   two cannot drift into looking nearly alike. */
+/* The commits canvas keeps no chrome of its own: its counts and actions sit
+   in the view bar, beside the tabs. */
+.workspace-viewbar__commits {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.workspace-view-tools__content--commits > :not(.workspace-viewbar__commits) {
+  display: none;
+}
+@media (max-width: 720px) {
+  #workspace-commits-tools .task-files__counts {
+    display: none;
+  }
+}
+
+.toast__content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  column-gap: 12px;
+  row-gap: 8px;
+}
+.toast__title {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.toast__action {
+  height: 30px;
+  margin-top: 0;
+  margin-inline-start: auto;
+  padding-inline: 12px;
+  border-radius: 999px;
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--foreground) 7%, transparent);
+  font-size: 13px;
+}
+.toast__action:hover {
+  background: color-mix(in srgb, var(--foreground) 11%, transparent);
+}
+
+.canvas-dock {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px;
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 5px 20px #00000006;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.canvas-dock button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 13px;
+  border-radius: 999px;
+  font-size: 11px;
+  color: var(--foreground);
+  cursor: pointer;
+}
+.canvas-dock button:hover,
+.canvas-dock button[aria-pressed="true"],
+.canvas-dock button[aria-expanded="true"] {
+  background: color-mix(in srgb, var(--foreground) 6%, transparent);
+}
+/* A trailing count, or an arrow tool holding its colour while it is armed. */
+.canvas-dock button > span {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.canvas-dock__icons {
+  display: flex;
+  align-items: center;
+}
+.canvas-dock__icons button {
+  padding: 8px;
+}
+.canvas-dock__divider {
+  height: 16px;
+  width: 1px;
+  background: var(--border);
+  margin: 0 3px;
+}
+.canvas-shortcut-key {
+  min-height: 20px;
+  padding-inline: 5px;
+  border-radius: 5px;
+  font-size: 10px;
+}
+/* Both docks are placed by React Flow's own bottom-center panel now, so
+   neither positions itself against a container that may be taller than the
+   viewport. */
+@media (max-width: 580px) {
+  .canvas-dock {
+    gap: 0;
+  }
+  .canvas-dock button {
+    font-size: 10px;
+    padding: 8px 10px;
+  }
+  .canvas-dock__icons button {
+    padding: 8px;
+  }
+}
+.workspace-canvas-tools {
+  flex-direction: column;
+}
+/* The hint drops below the pill when an arrow is being drawn, so the dock
+   keeps its shape while the instruction appears under it. */
+.workspace-canvas-tools:has(.link-mode-hint) {
+  border-radius: var(--radius-xl);
+}
+/* The list is not a canvas: it keeps the plain page background in both
+   themes. Without this it inherits .workspace-board's canvas tint. */
+.workspace-list-canvas {
+  background: var(--background);
+}
+[data-theme="light"] .workspace-list-frame {
+  box-shadow: none;
+}
+.task-card {
+  transition:
+    background-color 160ms ease,
+    border-color 180ms ease-out,
+    box-shadow 160ms ease,
+    transform 180ms ease-out;
+}
+@media (hover: hover) and (pointer: fine) {
+  .task-card {
+    transform: translate3d(
+        calc(var(--board-drift-x, 0px) * var(--card-depth, 1)),
+        calc(var(--board-drift-y, 0px) * var(--card-depth, 1)),
+        0
+      )
+      translateY(var(--card-lift, 0px));
+  }
+}
+.workspace-board [data-relation="self"] .task-card {
+  --card-lift: -4px;
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  box-shadow: 0 12px 24px color-mix(in srgb, #000 22%, transparent);
+}
+.workspace-board [data-relation="near"] .task-card {
+  border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+}
+.workspace-board .react-flow__node {
+  transition: opacity 240ms ease-out;
+}
+.workspace-board[data-hover="on"] .react-flow__node[data-relation="far"] {
+  opacity: 0.7;
+}
+.task-card[data-status="proposed"] {
+  border: var(--border-width) dashed var(--border);
+}
+.task-card[data-status="doing"] {
+  background: color-mix(in srgb, var(--warning) 7%, var(--surface));
+}
+.task-card[data-status="done"] {
+  background: color-mix(in srgb, var(--success) 11%, var(--surface));
+}
+/* A done card that was sent back keeps none of done's calm: the green ground
+   is what made it skippable, and the point of a review is that it is not. */
+.task-card[data-review] {
+  border-color: var(--activity-review);
+  background: color-mix(in srgb, var(--activity-review) 19%, var(--surface));
+  box-shadow: 0 0 0 1px var(--activity-review);
+}
+
+.workspace-task-row[data-status="done"] {
+  background: color-mix(in srgb, var(--success) 8%, transparent);
+}
+.workspace-task-row[data-review],
+.task-list-card[data-review] {
+  background: color-mix(in srgb, var(--activity-review) 11%, transparent);
+  box-shadow: inset 3px 0 0 var(--activity-review);
+}
+/* Phone rendering of the list view: one card per task instead of six columns
+   behind a sideways scroll. Same rows, same actions, stacked. */
+/* The list fills the same frame the whiteboard does, and the frame supplies the
+   inset for both. On a phone the list's own inset stacked on top of that one,
+   leaving the first group's chip a finger's width below the tabs; there it keeps
+   only the gutter the cards need to clear the frame's edge. */
+.task-list {
+  padding: 16px;
+}
+@media (max-width: 767px) {
+  .task-list {
+    padding: 4px 10px 12px;
+  }
+}
+.task-list-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 8px 0 0;
+  list-style: none;
+}
+.task-list-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--separator);
+  border-radius: 14px;
+  background: var(--surface);
+  cursor: pointer;
+}
+.task-list-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.task-list-card[data-status="doing"] {
+  background: color-mix(in srgb, var(--warning) 7%, var(--surface));
+}
+.task-list-card[data-status="done"] {
+  background: color-mix(in srgb, var(--success) 11%, var(--surface));
+}
+.task-list-card__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.task-list-card__status {
+  margin-left: auto;
+}
+.task-list-card__name {
+  overflow-wrap: anywhere;
+  font-weight: 500;
+}
+.task-list-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-top: 2px;
+}
+.workspace-task-row[data-status="done"]:hover {
+  background: color-mix(in srgb, var(--success) 13%, transparent);
+}
+.status-menu-trigger {
+  width: max-content;
+  min-width: 0;
+  height: auto;
+  padding: 0;
+}
+
+/* A status is a mark and a label, not a container. Its colour comes from the
+   workspace's saved orb palette; the theme mix gives each default colour at
+   least 3:1 contrast against the surfaces on which the mark appears. The four
+   circle treatments keep the states legible without colour. */
+.status-badge {
+  --status-color: color-mix(
+    in oklab,
+    var(--status-source) 68%,
+    var(--foreground) 32%
+  );
+  display: inline-flex;
+  min-width: 0;
+  height: 20px;
+  align-items: center;
+  gap: 5px;
+  color: var(--foreground);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+[data-theme="dark"] .status-badge {
+  --status-color: color-mix(
+    in oklab,
+    var(--status-source) 88%,
+    var(--foreground) 12%
+  );
+}
+.status-badge[data-size="md"] {
+  height: 24px;
+  gap: 6px;
+  font-size: 13px;
+}
+.status-badge__mark {
+  width: 13px;
+  height: 13px;
+  flex: none;
+  overflow: visible;
+  color: var(--status-color);
+}
+.status-badge[data-size="md"] .status-badge__mark {
+  width: 15px;
+  height: 15px;
+}
+.status-badge__ring {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+}
+.status-badge[data-status="proposed"] .status-badge__ring {
+  stroke-dasharray: 1.3 2.15;
+  stroke-linecap: round;
+}
+.status-badge[data-status="doing"] .status-badge__ring,
+.status-badge[data-status="done"] .status-badge__ring {
+  stroke-width: 2;
+}
+.status-badge__center {
+  fill: currentColor;
+}
+.status-badge__check {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+.status-badge__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.task-handle {
+  width: 11px;
+  height: 28px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 78%, var(--foreground));
+  opacity: 0.76;
+  transition:
+    opacity 120ms ease,
+    transform 120ms ease;
+}
+.task-handle:hover,
+.task-handle.connectingfrom,
+.task-handle.connectingto {
+  opacity: 1;
+  transform: scale(1.12);
+}
+/* One label chip for both canvases. The whiteboard and the task files map use
+   HTML labels instead of React Flow's SVG text, so they can be nudged, rounded,
+   and coloured for what they say. Defined here so the two views stay aligned. */
+.canvas-edge-label {
+  position: absolute;
+  pointer-events: none;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--background) 92%, transparent);
+  border: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+/* One wire, worn by both canvases. The whiteboard and the task files map draw
+   the same kind of thing — a connection between two cards — and they are
+   defined once here so they cannot drift into looking nearly alike. */
+.canvas-wire .react-flow__edge-path {
+  stroke: color-mix(in srgb, var(--accent) 70%, transparent);
+  stroke-width: 1.5;
+  stroke-dasharray: 6 5;
+  stroke-linecap: round;
+  /* Held in screen pixels, so a board zoomed out to see the whole graph does
+     not lose its connections. */
+  vector-effect: non-scaling-stroke;
+  transition: stroke 180ms ease-out;
+}
+.canvas-wire:where(.subtask-edge) .react-flow__edge-path {
+  stroke: color-mix(in srgb, var(--success) 70%, transparent);
+}
+.canvas-wire:where([data-lit="true"]) .react-flow__edge-path {
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+.canvas-wire:where(.subtask-edge[data-lit="true"]) .react-flow__edge-path {
+  stroke: var(--success);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .canvas-wire:where([data-lit="true"]) .react-flow__edge-path {
+    animation: canvas-wire-flow 900ms linear infinite;
+  }
+}
+@keyframes canvas-wire-flow {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -22;
+  }
+}
+/* Hovering is how you pick one wire out of a crowd, so it is a big change, not
+   a subtle one: solid, twice the weight, and it takes its label with it. The
+   hit area is the fat transparent path React Flow draws underneath, so this
+   triggers well before the pointer is on the line itself. */
+.react-flow__edge.canvas-wire:hover .react-flow__edge-path {
+  stroke: var(--accent);
+  stroke-width: 3;
+  stroke-dasharray: none;
+  animation: none;
+}
+.react-flow__edge.canvas-wire:hover .canvas-edge-label {
+  background: var(--accent);
+  color: var(--accent-foreground, #fff);
+  border-color: var(--accent);
+}
+/* The one you clicked. A dashed line two pixels wider is not an answer to
+   "which of these did I pick", so the chosen wire stops being dashed at all. */
+.react-flow__edge.canvas-wire.canvas-wire--selected .react-flow__edge-path {
+  stroke: var(--canvas-selected);
+  stroke-width: 3.6;
+  stroke-dasharray: none;
+  animation: none;
+  filter: drop-shadow(
+    0 0 6px color-mix(in srgb, var(--canvas-selected) 70%, transparent)
+  );
+}
+.react-flow__edge.canvas-wire.canvas-wire--selected .canvas-edge-label {
+  background: var(--canvas-selected);
+  border-color: var(--canvas-selected);
+  color: #1a1206;
+  font-weight: 600;
+}
+/* The wide soft band underneath. Colour alone is easy to lose in a crowded
+   area; a halo is visible without having to find the line it belongs to. */
+.canvas-wire__halo {
+  fill: none;
+  stroke: color-mix(in srgb, var(--canvas-selected) 30%, transparent);
+  stroke-width: 14;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+.workspace-sidebar {
+  --spacing: 0.2rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-size: 14px;
+  line-height: 20px;
+}
+.workspace-sidebar__header {
+  display: flex;
+  align-items: center;
+  gap: 9.6px;
+  padding: 19.2px 16px 12.8px;
+  height: 52px;
+  flex-shrink: 0;
+  font-weight: 600;
+}
+
+.workspace-sidebar__content {
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+  scrollbar-width: none;
+  padding: 0 9.6px;
+}
+.workspace-sidebar__group {
+  display: flex;
+  flex-direction: column;
+  gap: 1.6px;
+}
+.workspace-sidebar__group + .workspace-sidebar__group {
+  margin-top: 19.2px;
+}
+.workspace-sidebar__group-label {
+  padding: 4.8px 6.4px;
+  margin-bottom: 3.2px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+}
+.workspace-sidebar__item,
+.workspace-sidebar__project {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  min-height: 29.6px;
+  gap: 9.6px;
+  padding: 4.8px 8px;
+  border-radius: 16px;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 20px;
+}
+.workspace-sidebar__tooltip-trigger {
+  display: block;
+  width: 100%;
+  border-radius: 16px;
+}
+.workspace-sidebar__item:hover,
+.workspace-sidebar__project:hover {
+  background: var(--background-tertiary);
+}
+.workspace-sidebar__item[aria-current="page"],
+.workspace-sidebar__project[aria-current="page"] {
+  background: var(--default);
+}
+.workspace-sidebar button:focus-visible,
+.workspace-sidebar__project[data-focus-visible] {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.workspace-sidebar__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--muted);
+}
+.workspace-sidebar__icon svg {
+  width: 12.8px;
+  height: 12.8px;
+}
+.workspace-sidebar__item[aria-current="page"] .workspace-sidebar__icon {
+  color: var(--foreground);
+}
+.workspace-sidebar__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-sidebar__projects {
+  display: flex;
+  flex-direction: column;
+  gap: 1.6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+/* Reordering feedback: the row being carried fades, and the row under the
+   pointer shows which side it will land on. */
+.workspace-sidebar__project {
+  transition: opacity 120ms ease;
+}
+.workspace-sidebar__project[data-dragging] {
+  opacity: 0.4;
+}
+.workspace-sidebar__project[data-drop="before"] {
+  box-shadow: inset 0 2px 0 var(--accent);
+}
+.workspace-sidebar__project[data-drop="after"] {
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+.workspace-sidebar__children {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.6px;
+  margin-left: 16px;
+  padding-left: 8px;
+}
+.workspace-sidebar__children::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 1px;
+  background: var(--separator);
+}
+.workspace-sidebar__project {
+  border-radius: 16px;
+  padding-left: 8px;
+}
+.workspace-sidebar__footer {
+  flex-shrink: 0;
+  padding: 6.4px;
+  margin-top: 8px;
+}
+.workspace-sidebar__footer-row {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 4px;
+}
+.workspace-sidebar__user {
+  min-width: 0;
+  flex: 1;
+}
+.workspace-sidebar__user-chevron {
+  flex: none;
+}
+.workspace-sidebar__avatar {
+  width: 25.6px;
+  height: 25.6px;
+  flex-shrink: 0;
+}
+.workspace-sidebar__avatar .avatar__fallback {
+  font-size: 11px;
+}
+.workspace-sidebar__avatar-wrap {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+.workspace-sidebar__badge {
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: 0 0 0 2px var(--surface);
+}
+.workspace-sidebar__count {
+  padding: 0 6px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--muted) 20%, transparent);
+  color: var(--foreground);
+  font-size: 10.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 16px;
+}
+.workspace-sidebar__popover {
+  width: 320px;
+}
+.workspace-sidebar__menu-item {
+  align-items: flex-start;
+  gap: 10px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+.workspace-sidebar__menu-icon {
+  display: flex;
+  flex: none;
+  margin-top: 2px;
+  color: var(--muted);
+}
+.workspace-sidebar__menu-text {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 1px;
+}
+.workspace-sidebar__menu-item [data-slot="label"] {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+}
+.workspace-sidebar__menu-item [data-slot="description"] {
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 400;
+  line-height: 15px;
+}
+.workspace-sidebar__menu-shortcut,
+.workspace-sidebar__menu-item .workspace-sidebar__count {
+  flex: none;
+  margin-top: 1px;
+}
+.menu-item--danger.workspace-sidebar__menu-item .workspace-sidebar__menu-icon {
+  color: var(--danger);
+}
+.workspace-sidebar__account {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  font-size: 14px;
+}
+.workspace-sidebar__theme-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 10px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+.workspace-theme-toggle {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  overflow: hidden;
+  padding: 4px;
+  border: 0;
+  border-radius: 999px;
+  background: #f1f1f3;
+}
+[data-theme="dark"] .workspace-theme-toggle {
+  background: #27272a;
+}
+.workspace-theme-toggle button {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  padding: 6px;
+  place-items: center;
+  border-radius: 999px;
+  color: var(--muted);
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+.workspace-theme-toggle button:hover {
+  color: var(--foreground);
+}
+.workspace-theme-toggle button[data-active] {
+  background: #ffffff;
+  color: #18181b;
+}
+.workspace-theme-toggle button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* A deliberate full-screen close then open makes palette changes feel like a
+   single scene change. The View Transitions API supplies snapshots of both
+   themes, avoiding a flash while CSS variables are replaced. */
+::view-transition-old(root) {
+  z-index: 1;
+  animation: appearance-close 240ms cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+::view-transition-new(root) {
+  z-index: 2;
+  animation: appearance-open 360ms 240ms cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+@keyframes appearance-close {
+  from {
+    clip-path: circle(150vmax at 50% 50%);
+  }
+  to {
+    clip-path: circle(0 at 50% 50%);
+  }
+}
+@keyframes appearance-open {
+  from {
+    clip-path: circle(0 at 50% 50%);
+  }
+  to {
+    clip-path: circle(150vmax at 50% 50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
+.workspace-sidebar__rail {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: -3px;
+  width: 6px;
+  cursor: col-resize;
+  z-index: 2;
+}
+.workspace-context-menu {
+  position: fixed;
+  z-index: 60;
+  display: flex;
+  min-width: 180px;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 10px;
+  background: var(--overlay);
+  box-shadow: var(--overlay-shadow);
+}
+.workspace-context-menu button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 6px 8px;
+  border-radius: 7px;
+  color: var(--foreground);
+  font-size: 13px;
+  text-align: left;
+}
+.workspace-context-menu button:hover,
+.workspace-context-menu button:focus-visible {
+  background: var(--default);
+  outline: none;
+}
+.workspace-context-menu button:disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+.workspace-context-menu__stack {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 1px;
+}
+.workspace-context-menu__hint {
+  color: var(--muted);
+  font-size: 11px;
+  opacity: 0.75;
+}
+.workspace-context-menu__danger {
+  color: #f87171 !important;
+}
+.workspace-sidebar[data-collapsed="true"] .workspace-sidebar__label,
+.workspace-sidebar[data-collapsed="true"] .workspace-sidebar__group-label {
+  display: none;
+}
+.workspace-sidebar[data-collapsed="true"] .workspace-sidebar__header {
+  padding-left: 14.4px;
+}
+.workspace-sidebar[data-collapsed="true"] .workspace-sidebar__content {
+  padding: 0 6.4px;
+}
+.workspace-sidebar[data-collapsed="true"] .workspace-sidebar__item,
+.workspace-sidebar[data-collapsed="true"] .workspace-sidebar__project {
+  justify-content: center;
+  padding-inline: 0;
+}
+.workspace-sidebar[data-collapsed="true"] .workspace-sidebar__children {
+  margin-left: 0;
+  padding-left: 0;
+}
+.workspace-sidebar[data-collapsed="true"] .workspace-sidebar__children::before {
+  display: none;
+}
+.workspace-sidebar[data-collapsed="true"] .workspace-sidebar__footer {
+  padding: 6.4px 4.8px;
+}
+.workspace-sidebar[data-collapsed="true"] .workspace-sidebar__user {
+  justify-content: center;
+  padding-inline: 0;
+}
+.workspace-sidebar[data-collapsed="true"] .workspace-sidebar__user-chevron {
+  display: none;
+}
+.mobile-nav__content {
+  width: min(17rem, 82vw);
+  max-width: 82vw;
+}
+.mobile-nav__dialog {
+  display: flex;
+  height: 100%;
+  padding: 0;
+  overflow: hidden;
+  outline: none;
+}
+.mobile-nav__dialog[data-placement="left"] {
+  border-right: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.mobile-nav__dialog .workspace-sidebar {
+  height: 100%;
+  min-height: 0;
+}
+.mobile-nav__dialog .workspace-sidebar__rail {
+  display: none;
+}
+@media (min-width: 768px) {
+  .mobile-nav__backdrop {
+    display: none;
+  }
+}
+/* Phones keep the collapsed rail on screen: the orbs stay one tap away, and
+   the button in its header opens the full menu as a drawer. */
+@media (max-width: 767px) {
+  .workspace-sidebar-shell {
+    width: 48px;
+  }
+  .workspace-sidebar {
+    border-right: 0;
+  }
+  .workspace-sidebar__rail {
+    right: 0;
+    width: 3px;
+    cursor: pointer;
+  }
+  /* The 48px rail has no room for the header's own side padding. */
+  .workspace-sidebar[data-collapsed="true"] .workspace-sidebar__header {
+    justify-content: center;
+    padding-inline: 8px;
+  }
+}
+/* The rail's own toggle: under the mark, above the orbs, and outside the
+   scrolling list so it stays put. */
+.workspace-sidebar__rail-actions {
+  display: flex;
+  flex-shrink: 0;
+  justify-content: center;
+  padding: 0 6.4px 6.4px;
+}
+/* HeroUI's own button corner (--radius * 3), so the rail's toggle is the same
+   shape as the one the desktop header shows; only the box grows, to keep a
+   comfortable touch target inside the 48px rail. */
+.workspace-sidebar__expand {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  flex: none;
+  padding: 0;
+  border-radius: calc(var(--radius) * 3);
+}
+@media (prefers-reduced-motion: reduce) {
+  .workspace-sidebar-shell {
+    transition: none;
+  }
+}
+
+/* Third-party sign-in buttons follow provider sign-in guidelines:
+   approved label wording, unaltered logos, and each vendor's own colours and
+   metrics (min 40px height, medium-weight system font) instead of app styling. */
+.oauth-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 40px;
+  padding: 0 12px;
+
+  border-radius: 8px;
+  font-family:
+    "Roboto",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Helvetica,
+    Arial,
+    sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.15px;
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    box-shadow 120ms ease;
+}
+.oauth-button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.oauth-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.oauth-button__icon {
+  display: flex;
+  flex-shrink: 0;
+}
+.oauth-button__icon svg {
+  display: block;
+}
+
+/* GitHub — dark brand surface on light, high-contrast light surface on dark. */
+.oauth-button--github {
+  background: #24292f;
+  color: #ffffff;
+}
+.oauth-button--github:hover:not(:disabled) {
+  background: #32383f;
+}
+[data-theme="dark"] .oauth-button--github {
+  background: #f0f6fc;
+  color: #24292f;
+}
+[data-theme="dark"] .oauth-button--github:hover:not(:disabled) {
+  background: #ffffff;
+}
+
+/* Label badge — one consistent pill for whiteboard cards, the list table, and
+   anywhere else labels appear. Colour comes from --label-color (set inline). */
+.label-badge {
+  --label-badge-bg: color-mix(in srgb, var(--label-color) 15%, var(--surface));
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 12rem;
+  height: 20px;
+  padding: 0 8px;
+
+  border-radius: 999px;
+  background: var(--label-badge-bg);
+  color: var(--foreground);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+[data-theme="dark"] .label-badge {
+  --label-badge-bg: color-mix(in srgb, var(--label-color) 24%, var(--surface));
+}
+.label-badge__dot {
+  width: 6px;
+  height: 6px;
+  flex: none;
+  border-radius: 999px;
+  background: var(--label-color);
+}
+.label-badge__text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.label-badge__remove {
+  display: inline-flex;
+  flex: none;
+  margin-left: 1px;
+  margin-right: -3px;
+  padding: 1px;
+  border-radius: 999px;
+  color: color-mix(in srgb, var(--foreground) 50%, transparent);
+  cursor: pointer;
+  transition:
+    color 120ms ease,
+    background-color 120ms ease;
+}
+.label-badge__remove:hover {
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--foreground) 12%, transparent);
+}
+.label-badge__remove:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* Neutral meta pill on whiteboard task cards — shares the label-badge metrics
+   (20px tall, 11px medium) so every chip on a card lines up. */
+.node-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 20px;
+  padding: 0 8px;
+
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--foreground) 5%, var(--surface));
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+}
+.node-tag svg {
+  flex: none;
+}
+.node-tag__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.node-tag--accent {
+  color: var(--accent);
+
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+}
+.node-tag--review {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--activity-review);
+  background: color-mix(in srgb, var(--activity-review) 18%, var(--surface));
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.node-tag--lock {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--warning);
+  background: color-mix(in srgb, var(--warning) 14%, var(--surface));
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.task-inspector__lock {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--warning) 12%, var(--surface));
+  padding: 6px 10px;
+  color: var(--warning);
+  font-size: 12px;
+  line-height: 18px;
+}
+.task-inspector__lock-agent {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 11px;
+}
+.task-inspector__review {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid color-mix(in srgb, var(--activity-review) 45%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--activity-review) 12%, var(--surface));
+  padding: 8px 10px;
+}
+.task-inspector__review-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--activity-review);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+}
+.task-inspector__review-to {
+  margin-left: auto;
+  font-weight: 500;
+}
+.task-inspector__review-text {
+  font-size: 12px;
+  line-height: 18px;
+  overflow-wrap: anywhere;
+}
+.task-inspector__agents {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.task-inspector__agent {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--background-tertiary);
+  padding: 4px 12px 4px 5px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 18px;
+  transition:
+    border-color 120ms ease,
+    background-color 120ms ease;
+}
+.task-inspector__agent-bloub {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  opacity: 0.65;
+  transition: opacity 120ms ease;
+}
+.task-inspector__agent-bloub .activity-bloub {
+  width: 22px;
+  height: 22px;
+}
+.task-inspector__agent:hover .task-inspector__agent-bloub {
+  opacity: 1;
+}
+.task-inspector__agent[data-chosen] {
+  border-color: color-mix(in srgb, var(--warning) 60%, transparent);
+  background: color-mix(in srgb, var(--warning) 16%, var(--surface));
+  color: var(--foreground);
+  font-weight: 600;
+}
+.task-inspector__agent[data-chosen] .task-inspector__agent-bloub {
+  opacity: 1;
+}
+.review-action {
+  --button-bg: color-mix(in srgb, var(--activity-review) 16%, var(--surface));
+  --button-bg-hover: color-mix(
+    in srgb,
+    var(--activity-review) 26%,
+    var(--surface)
+  );
+  --button-bg-pressed: color-mix(
+    in srgb,
+    var(--activity-review) 32%,
+    var(--surface)
+  );
+  --button-fg: var(--activity-review);
+}
+.review-action--solid {
+  --button-bg: var(--activity-review);
+  --button-bg-hover: color-mix(in srgb, var(--activity-review) 88%, black);
+  --button-bg-pressed: color-mix(in srgb, var(--activity-review) 82%, black);
+  --button-fg: var(--danger-foreground);
+}
+.task-inspector__line {
+  display: flex;
+  min-height: 0;
+  max-height: 40dvh;
+  flex-direction: column;
+  gap: 8px;
+}
+.task-inspector__line-row {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+  border-radius: 12px;
+  background: var(--background-tertiary);
+  padding: 8px 10px;
+}
+.task-inspector__line-name {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+}
+
+/* Who has worked on a task: everyone whose activity it carries, people as
+   their initials and agents as the avatar the activity rail draws for them.
+   Read from the activity rather than assigned by hand, so a card says who has
+   actually touched it. The faces overlap the way a stack of them does
+   anywhere, each cut from the next by a ring of the card's ground. */
+.task-people {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+}
+/* Pushed to the far side of its row: the card keeps its editors bottom-right,
+   opposite the status, the way the landing card lays them out. */
+.task-people--end {
+  flex: none;
+  margin-left: auto;
+}
+.task-people__label {
+  flex: none;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.task-people__faces {
+  display: flex;
+  flex: none;
+  align-items: center;
+  padding-left: 2px;
+}
+.person-avatar {
+  overflow: hidden;
+  border-radius: 999px;
+}
+.person-avatar .avatar__fallback {
+  background: oklch(0.9 0.07 var(--person-hue, 250));
+  color: oklch(0.38 0.12 var(--person-hue, 250));
+  font-weight: 600;
+}
+[data-theme="dark"] .person-avatar .avatar__fallback {
+  background: oklch(0.36 0.09 var(--person-hue, 250));
+  color: oklch(0.92 0.05 var(--person-hue, 250));
+}
+.task-people__face {
+  display: flex;
+  width: 22px;
+  height: 22px;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  box-shadow: 0 0 0 2px var(--surface);
+}
+.task-people__trigger {
+  display: inline-flex;
+  flex: none;
+  border-radius: 999px;
+  outline-offset: 2px;
+}
+.task-people__trigger + .task-people__trigger {
+  margin-left: -6px;
+}
+.task-people__tip {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 2px 0;
+  text-align: left;
+}
+.task-people__tip-name {
+  font-weight: 600;
+}
+.task-people__tip-kind,
+.task-people__tip-fact {
+  color: var(--muted);
+  font-size: 11px;
+}
+/* A person is HeroUI's own avatar — their photo when the app has one, their
+   initials on its neutral ground when it does not — at the row's size rather
+   than the component's. */
+.task-people__face--person {
+  font-size: 9px;
+}
+.task-people__face--agent .activity-bloub {
+  width: 100%;
+  height: 100%;
+}
+/* The large face, beside an activity entry: the size the agent avatar has
+   always been drawn at there, and now the person's too. It stands alone, so
+   it needs no ring to cut it from a neighbour. */
+.task-people__face--lg,
+.task-people__face--lg.task-people__face--person {
+  width: 40px;
+  height: 40px;
+  box-shadow: none;
+  font-size: 13px;
+}
+/* On a board card the row is a small stack: three faces at most, a little
+   larger and tucked closer, and a count for the rest, with no label beside
+   them to shrink them against. */
+.task-people--card .task-people__face,
+.task-people--card .node-orbs {
+  display: flex;
+  flex: none;
+  align-items: center;
+}
+.node-orbs > [data-testid="fluid-orb"] {
+  border-radius: 999px;
+  box-shadow: 0 0 0 2px var(--surface);
+}
+.node-orbs > * + * {
+  margin-left: -10px;
+}
+.node-orbs__more {
+  display: grid;
+  height: 22px;
+  min-width: 22px;
+  padding: 0 6px;
+  place-items: center;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--foreground) 8%, var(--surface));
+  box-shadow: 0 0 0 2px var(--surface);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.task-people__more {
+  height: 24px;
+  min-width: 24px;
+}
+.task-people--card .task-people__face {
+  width: 24px;
+}
+.task-people--card .task-people__trigger + .task-people__trigger {
+  margin-left: -8px;
+}
+[data-board-calm] .agent-bloub__pulse,
+[data-board-calm] .agent-bloub .activity-bloub,
+[data-board-calm] .canvas-wire .react-flow__edge-path {
+  animation: none;
+}
+.task-people__more {
+  display: grid;
+  height: 22px;
+  min-width: 22px;
+  padding: 0 5px;
+  place-items: center;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--foreground) 8%, var(--surface));
+  box-shadow: 0 0 0 2px var(--surface);
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.task-people__names {
+  overflow: hidden;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.task-editor-list {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+.task-editor-list__row {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.task-editor-list__row:first-child {
+  padding-top: 2px;
+}
+.task-editor-list__row:last-child {
+  padding-bottom: 2px;
+  border-bottom: 0;
+}
+.task-editor-list__identity,
+.task-editor-list__activity {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 1px;
+}
+.task-editor-list__identity {
+  flex: 1;
+}
+.task-editor-list__name {
+  overflow: hidden;
+  color: var(--foreground);
+  font-size: 12px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.task-editor-list__kind,
+.task-editor-list__activity,
+.task-editor-list__empty {
+  color: var(--muted);
+  font-size: 11px;
+}
+.task-editor-list__activity {
+  flex: none;
+  align-items: flex-end;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.task-editor-list__empty {
+  padding: 2px 0;
+}
+
+/* Subtask checklist inside a task card */
+.subtask-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.subtask-list__label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 2px 2px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.subtask-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 28px;
+  padding: 4px 8px;
+
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--foreground);
+  font-size: 12px;
+  line-height: 16px;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+.subtask-row:hover {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--surface));
+}
+.subtask-row:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.subtask-row__icon {
+  display: flex;
+  flex: none;
+  color: var(--muted);
+}
+.subtask-row__name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+.subtask-row[data-status="done"] {
+  background: color-mix(in srgb, var(--success) 10%, var(--surface));
+}
+.subtask-row[data-status="done"] .subtask-row__icon {
+  color: var(--success);
+}
+.subtask-row[data-status="done"] .subtask-row__name {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+/* Draw-arrow mode started from the bottom-left board controls: click a task,
+   then a second task, to declare a dependency or subtask link. */
+.link-pick {
+  cursor: crosshair;
+}
+.link-pick .task-card {
+  transition:
+    outline-color 120ms ease,
+    box-shadow 120ms ease;
+}
+.link-pick:hover .task-card {
+  outline: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  outline-offset: 3px;
+}
+.link-pick--source .task-card {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+.link-mode-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 16rem;
+  padding: 6px 10px;
+
+  border-radius: 8px;
+  background: var(--overlay);
+  box-shadow: var(--overlay-shadow);
+  color: var(--foreground);
+  font-size: 11px;
+  line-height: 1.3;
+}
+.link-mode-hint > span:first-child {
+  display: flex;
+  flex: none;
+}
+.link-mode-hint__esc {
+  margin-left: auto;
+  padding-left: 8px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* Brand wordmark. logo.png ships transparent with near-black artwork; force it
+   pure black on light themes and pure white on dark, preserving anti-aliasing. */
+.app-logo {
+  display: block;
+  filter: brightness(0);
+  -webkit-user-select: none;
+  user-select: none;
+}
+:root[data-theme="dark"] .app-logo {
+  filter: brightness(0) invert(1);
+}
+
+/* A quiet, branded loading screen for the short hand-off from authentication
+   to the workspace. The moving segment stays inside a fine neutral rule, so
+   progress reads clearly without competing with the wordmark. */
+.workspace-sidebar__logo {
+  height: 20px;
+  width: auto;
+  max-width: 100%;
+}
+
+.workspace-sidebar__mark {
+  display: none;
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+/* The mini rail uses the same isolated mark as the browser favicon. */
+.workspace-sidebar[data-collapsed="true"] .workspace-sidebar__header {
+  padding-left: 13px;
+}
+.workspace-sidebar[data-collapsed="true"] .workspace-sidebar__wordmark {
+  display: none;
+}
+
+.workspace-sidebar[data-collapsed="true"] .workspace-sidebar__mark {
+  display: block;
+}
+
+/* The ASCII-quantized WebGL fluid field, wherever it is mounted: the landing
+   hero clips it to one section, the signed-out scaffold runs it over the whole
+   page. The canvas listens on the window while remaining click-through, so
+   pointer trails flow behind a card without blocking any form control. */
+.ascii-fluid {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+.ascii-fluid canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Shared activity and map colours. The reported kinds use one categorical
+   palette in HeroUI's own oklch idiom: a single lightness and chroma per theme,
+   hue alone telling them apart, so they sit beside accent/success/warning
+   without shouting. Review is the exception and is meant to be: it is the one
+   kind a person writes to stop a finished task being believed, so it carries
+   more chroma than the rest and has to be findable among done cards. The board
+   and workspace-kind art read the same variables, so a kind looks the same
+   wherever it is drawn. */
+:root {
+  --activity-change: oklch(0.62 0.13 255);
+  --activity-discovery: oklch(0.62 0.13 300);
+  --activity-decision: oklch(0.62 0.13 40);
+  --activity-verification: oklch(0.62 0.13 155);
+  --activity-blocker: oklch(0.58 0.18 22);
+  --activity-review: oklch(0.54 0.22 12);
+  --map-stage: var(--background-tertiary);
+  --map-link: color-mix(in oklab, var(--muted) 55%, var(--background) 45%);
+  --map-label: var(--muted);
+}
+[data-theme="dark"] {
+  --activity-change: oklch(0.72 0.12 255);
+  --activity-discovery: oklch(0.72 0.12 300);
+  --activity-decision: oklch(0.72 0.12 40);
+  --activity-verification: oklch(0.72 0.12 155);
+  --activity-blocker: oklch(0.7 0.16 22);
+  --activity-review: oklch(0.68 0.21 12);
+  --map-link: color-mix(in oklab, var(--muted) 45%, var(--background) 55%);
+}
+
+/* Global search follows the compact HeroUI Pro docs palette: a blurred page,
+   one large search row, grouped results, and keyboard help kept out of the way. */
+.global-search__backdrop {
+  background: color-mix(in srgb, var(--background) 42%, transparent);
+  backdrop-filter: blur(7px);
+}
+/* Dead centre on both axes. The container is the modal's own flex column, so
+   centring it here is enough; the dialog caps its height and the result list
+   scrolls inside it, so a long list never pushes the dialog off the screen. */
+.global-search__container {
+  justify-content: center;
+}
+.global-search__dialog {
+  width: min(40rem, calc(100vw - 24px));
+  max-height: min(
+    34rem,
+    72dvh,
+    calc(var(--visual-viewport-height, 100dvh) - 20px)
+  );
+  overflow: hidden;
+  border: 1px solid var(--separator);
+  border-radius: 14px;
+  background: var(--overlay);
+  box-shadow:
+    0 24px 64px color-mix(in srgb, #000 30%, transparent),
+    var(--overlay-shadow);
+}
+/* Keep shortcut keys legible on both themes. HeroUI's light Kbd variant is
+   intentionally transparent; in this palette it needs the tactile keycap
+   treatment so the shortcut does not disappear against the overlay. */
+.kbd,
+.kbd.kbd--light {
+  border: 1px solid color-mix(in srgb, var(--foreground) 18%, var(--separator));
+  background: color-mix(in srgb, var(--foreground) 5%, var(--surface));
+  color: var(--foreground);
+  box-shadow:
+    inset 0 -1px 0 color-mix(in srgb, var(--foreground) 12%, transparent),
+    0 1px 1px rgb(0 0 0 / 0.08);
+}
+.global-search__field-wrap {
+  padding: 4px;
+}
+.global-search__field {
+  height: 54px;
+  overflow: hidden;
+  border: 1px solid var(--separator);
+  border-radius: var(--field-radius, calc(var(--radius) * 1.5));
+  background: transparent;
+  box-shadow: none;
+}
+/* HeroUI's rendered search field has no visible outer focus ring in this app,
+   so the dialog uses the same calm fallback: one accent-coloured border. */
+.global-search__field:focus-within,
+.global-search__field[data-focus-within="true"] {
+  border-color: var(--focus);
+  box-shadow: none;
+}
+.global-search__field input {
+  height: 100%;
+  font-size: 16px;
+}
+.global-search__results {
+  min-height: 4rem;
+  max-height: min(25rem, 52dvh);
+  padding: 4px;
+}
+.global-search__results .list-box {
+  gap: 1px;
+}
+.global-search__results .menu-section__header,
+.global-search__results .list-box-section__header {
+  padding: 8px 9px 4px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+@media (max-width: 640px) {
+  /* A phone gives the dialog almost the whole screen, so it stays at the top
+     where the keyboard pushes it, rather than being centred in what is left. */
+  .global-search__container {
+    justify-content: flex-start;
+    padding-top: 10px;
+  }
+  .global-search__dialog {
+    max-height: calc(var(--visual-viewport-height, 100dvh) - 20px);
+  }
+  .global-search__results {
+    max-height: calc(var(--visual-viewport-height, 100dvh) - 132px);
+  }
+}
+
+/* iOS safe areas for the panels whose padding is set further up as a
+   shorthand: these have to come last to win on source order. The sidebar
+   header has a fixed height, so it grows by the inset instead of squeezing
+   its contents into the same 52px. */
+.workspace-sidebar__header {
+  height: auto;
+  min-height: calc(52px + env(safe-area-inset-top));
+  padding-top: calc(19.2px + env(safe-area-inset-top));
+}
+.workspace-sidebar__footer {
+  padding-bottom: calc(6.4px + env(safe-area-inset-bottom));
+}
+
+/* The signed-out landing page. One bounded column drawn the way a technical
+   drawing is drawn: fine dashed rails running the whole page, a square marker
+   wherever a section edge meets one, and dashed boxes for everything that is a
+   box. The page alternates two tones — the stage it sits on and one step
+   raised from it — so a section is told from the one above it by its ground
+   and a dashed line, never by a gradient.
+
+   What lies under all of it is the ASCII fluid, mounted once for the whole
+   page the way the signed-out scaffold mounts it: the field is the ground the
+   sheet was laid on, not an ornament inside one band of it. Every section
+   below the first screen paints an opaque tone over it, so the field is seen
+   exactly where the sheet leaves it alone — the margins either side, the air
+   above the column's first line, and the two bands of the first screen, which
+   carry a veil instead of a ground. On a phone there is no room beside the
+   column, so the rails and their markers step out and the field is seen
+   through the first screen alone.
+
+   The corners come from HeroUI's own radius scale rather than from a number
+   chosen here, so the page's boxes and the buttons standing on them turn the
+   same corner. The sheet itself does not: rails, section lines and the
+   showcase frame stay square, because they are the drawing, and a drawing
+   sheet has square corners. Everything drawn *on* the sheet is rounded. */
+.landing {
+  --landing-gutter: 40px;
+  /* The air above the showcase frame. The frame is flush to the rails and sets
+     its section's padding itself, so the section's own number is restated
+     here rather than inherited. */
+  --showcase-top: 44px;
+  position: relative;
+  /* One stacking context for the page, so the field can be the first thing
+     painted in it and nothing outside the landing can slip between the field
+     and the sheet. */
+  isolation: isolate;
+  /* A formatting root, so the column's top margin stays inside the page: left
+     to collapse, it fell out through the app root and the body, which put the
+     dotted ground and the rails 56px below the top of the viewport and left a
+     plain band above them. */
+  display: flow-root;
+  min-height: 100dvh;
+  /* The ground under the field — and the whole ground on a machine that cannot
+     give us WebGL. It is the page colour rather than a tint of it: the canvas
+     paints its own paper from `--background`, and iOS paints the band behind
+     the status bar and the strip behind the bottom toolbar from it too, so any
+     other value here reads as a pale seam at whichever end the canvas does not
+     reach. The tint the ground used to carry is gone with it: a tint under a
+     canvas painted from the untinted token is the seam this is trying to
+     avoid. The ground is flat: what tells the sheet from the paper is the
+     field where the field reaches, and the two dotted boxes either side of the
+     column — never a texture running under the reading column itself. */
+  background-color: var(--background);
+  color: var(--foreground);
+}
+/* The two containers either side of the column. Each is bounded by the outer
+   rail near the viewport edge and by the column's own rail, and each is filled
+   with the same dot grid, so the page reads as one sheet laid between two
+   identical margins rather than as a column floating on a texture. They are
+   painted behind everything in the page's own stacking context — the field
+   included, which runs out over them — and there is nothing to draw at all
+   once the gutters are too narrow to read as margins. */
+.landing::before,
+.landing::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  bottom: 0;
+  width: calc(50% - var(--landing-half) - var(--landing-outer));
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    var(--landing-dot) 1px,
+    transparent 0
+  );
+  background-size: 24px 24px;
+  pointer-events: none;
+}
+.landing::before {
+  left: var(--landing-outer);
+}
+.landing::after {
+  right: var(--landing-outer);
+}
+@media (max-width: 719px) {
+  .landing::before,
+  .landing::after {
+    display: none;
+  }
+}
+/* The frame's one line colour, one marker size, its four corners and the two
+   tones every section is painted from. */
+.landing-page {
+  --landing-line: color-mix(in srgb, var(--foreground) 12.5%, transparent);
+  /* The rhythm every line on the sheet is drawn to: a 16px mark over a 16px
+     gap, stated once so the vertical rails and the horizontal section lines
+     are the same dash seen turned ninety degrees. The rails take it as a
+     background at `1px 32px`; the lines take it as a border image, which is
+     the one way a horizontal rule can carry the rhythm without joining the
+     `background` shorthand a section's tone already owns. */
+  --landing-rule: repeating-linear-gradient(
+    to right,
+    var(--landing-line) 0 16px,
+    transparent 16px 32px
+  );
+  /* The ground inside the two gutter boxes. Quiet enough to read as paper and
+     no more; the light theme prints a shade lighter, because a dark dot on a
+     pale ground carries further than a pale one on a dark. */
+  --landing-dot: color-mix(in srgb, var(--foreground) 7%, transparent);
+  --landing-mark: 14px;
+  /* HeroUI's radius scale, named here by the job each corner does rather than
+     by its size, so a rule reads as what it is rounding. Change the theme's
+     base and every corner on this page moves with the buttons standing on it.
+     The joint mark is the exception: three pixels on a fourteen-pixel square
+     is the softening the drawing itself takes, and it stays that number
+     whatever the theme's base does. */
+  --landing-corner-mark: 3px;
+  --landing-corner-chip: var(--radius-xl);
+  --landing-corner-panel: var(--radius-2xl);
+  /* HeroUI's Card corner to the pixel — `min(32px, var(--radius-3xl))`, the
+     same formula its own Card and Alert use, and the same one its buttons
+     round to. */
+  --landing-corner-card: min(32px, var(--radius-3xl));
+  /* A marker straddles the rail it sits on, so the column keeps enough air
+     either side for the half that hangs outside it. On a phone the rails and
+     their markers are gone, and the column goes back to full bleed. */
+  --landing-inset: 0px;
+  --landing-half: min(600px, calc(50% - var(--landing-inset)));
+  /* Where the outer rail stands, and with it the outer edge of the gutter box.
+     Until there is room for a rail to read as a margin rather than as a second
+     frame there is no rail, and the box runs to the viewport's own edge. */
+  --landing-outer: 0px;
+  --landing-stage: var(--background);
+  --landing-raise: color-mix(in srgb, var(--foreground) 4%, var(--background));
+  --landing-tone: var(--landing-stage);
+  /* What the showcase's own frame reads for its lines and its two markers. */
+  --landing-rail: var(--landing-line);
+  --landing-marker: var(--landing-line);
+}
+[data-theme="dark"] .landing-page {
+  --landing-dot: color-mix(in srgb, var(--foreground) 9%, transparent);
+}
+.landing-column {
+  position: relative;
+  width: calc(100% - 2 * var(--landing-inset));
+  max-width: 1200px;
+  /* The field shows above, and below it the shared footer keeps its own
+     distance, so the frame reads as a bounded sheet lying on the field rather
+     than as the page edge. */
+  margin: clamp(24px, 4vw, 56px) auto 0;
+  border-top: 1px solid transparent;
+  border-image: var(--landing-rule) 1 0 0 0;
+}
+/* Every section carries its own ground and ends on its own dashed line; the
+   column's top edge is the one line no section owns. The line is a border
+   image rather than a border style, so it keeps the rails' rhythm and stays
+   clear of the `background` shorthand each tone writes. */
+.landing-section {
+  position: relative;
+  padding: 44px var(--landing-gutter);
+  border-bottom: 1px solid transparent;
+  border-image: var(--landing-rule) 0 0 1 0;
+  background: var(--landing-tone);
+}
+@media (min-width: 720px) {
+  .landing-page {
+    --landing-inset: 24px;
+  }
+}
+@media (min-width: 1280px) {
+  .landing-page {
+    --landing-outer: 20px;
+  }
+}
+.landing-section[data-tone="raise"] {
+  --landing-tone: var(--landing-raise);
+}
+/* The two markers each section leaves where its closing line meets the inner
+   rails, and the pair that closes the top of the column. The rail is the first
+   pixel inside the column, so the square is nudged half a pixel to sit on its
+   centre rather than on its edge. */
+.landing-section::before,
+.landing-section::after,
+.landing-column::before,
+.landing-column::after {
+  content: "";
+}
+.landing-section::before,
+.landing-section::after {
+  bottom: 0;
+}
+.landing-column::before,
+.landing-column::after {
+  top: 0;
+}
+.landing-section::before,
+.landing-column::before {
+  left: 0;
+}
+.landing-section::after,
+.landing-column::after {
+  right: 0;
+}
+.landing-section::before {
+  transform: translate(calc(-50% + 0.5px), 50%);
+}
+.landing-section::after {
+  transform: translate(calc(50% - 0.5px), 50%);
+}
+.landing-column::before {
+  transform: translate(calc(-50% + 0.5px), -50%);
+}
+.landing-column::after {
+  transform: translate(calc(50% - 0.5px), -50%);
+}
+/* The showcase draws its own frame, so this band pays no bottom air — the
+   frame ends the band itself. What it does keep is the column's gutter: the
+   frame is a box standing on the sheet, and a box whose own hairline lands on
+   the rail is not standing on the drawing, it is replacing its edge. The tab
+   bar is not in this flow — it floats on the frame. */
+.landing-section--flush {
+  padding: var(--showcase-top) var(--landing-gutter) 0;
+  scroll-margin-top: 0;
+}
+
+/* ---- The first screen ---------------------------------------------------- */
+
+/* The header stands on the sheet's own flat ground and carries nothing behind
+   it, so it needs no veil: the weather is inside the panel below, clipped to
+   its corners. */
+.landing-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: calc(14px + env(safe-area-inset-top));
+  padding-bottom: 14px;
+}
+.landing-header__cta-tight {
+  display: none;
+}
+.landing-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+@media (max-width: 480px) {
+  .landing-header {
+    gap: 8px;
+  }
+  .landing-header .public-header__brand {
+    gap: 8px;
+  }
+  .landing-header__actions {
+    gap: 6px;
+  }
+  .landing-header__cta-full {
+    display: none;
+  }
+  .landing-header__cta-tight {
+    display: inline;
+  }
+}
+
+/* The first screen keeps the column's gutter, like every band under it. Run
+   flush, the panel's own hairline falls on the inner rail and the two lines
+   fight for one pixel: the rail's dashes and a solid border on the same
+   column, with the panel's corner peeling off the rail for twelve pixels at
+   the top. Inside the gutter the rail runs the page unbroken and the panel
+   reads as what it is — a drawing laid on the sheet, at the same left margin
+   as the header's mark and every line of prose below it. Below 720px there
+   are no rails to clear, and the phone rule sets its own air. */
+.landing-hero {
+  --landing-hero-type: clamp(2.125rem, 5.4vw, 3.5rem);
+  --landing-hero-measure: calc(var(--landing-hero-type) * 7.5);
+  padding: 44px var(--landing-gutter);
+}
+.landing-hero__panel {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: clamp(400px, 40vw, 560px);
+  padding: 48px var(--landing-gutter);
+  border: 1px solid var(--landing-line);
+  border-radius: 12px;
+  background: var(--landing-raise);
+  isolation: isolate;
+  overflow: hidden;
+}
+.landing-hero__field {
+  z-index: 0;
+  opacity: 0.35;
+}
+[data-theme="light"] .landing-hero__field {
+  opacity: 0.5;
+}
+.landing-hero__body {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: var(--landing-hero-measure);
+  min-width: min-content;
+  max-width: 100%;
+  margin-inline: auto;
+  color: var(--foreground);
+  text-align: center;
+}
+.landing-hero__body::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -32% -18%;
+  background: radial-gradient(
+    ellipse closest-side at center,
+    var(--landing-raise) 0 56%,
+    color-mix(in srgb, var(--landing-raise) 80%, transparent) 76%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+.landing-hero__title {
+  margin: 0;
+  font-size: var(--landing-hero-type);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.04;
+  text-wrap: balance;
+}
+.landing-hero__word {
+  display: inline-block;
+}
+.landing-hero__title-read {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+@keyframes landing-hero-in {
+  from {
+    opacity: 0;
+    filter: blur(var(--hero-in-blur, 10px));
+    transform: translateY(20%);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+}
+.landing-hero__lead {
+  max-width: 34rem;
+  margin: 0;
+  color: var(--muted);
+  font-size: clamp(0.9375rem, 1.4vw, 1.0625rem);
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+.landing-hero__rows {
+  width: fit-content;
+  max-width: 100%;
+  margin: 0;
+  gap: 10px;
+  text-align: start;
+}
+.landing-hero__rows .landing-row {
+  font-size: 13px;
+}
+.landing-hero__rows .landing-row__glyph {
+  width: 28px;
+  height: 28px;
+  background: color-mix(in srgb, var(--background) 62%, transparent);
+}
+.landing-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-width: max-content;
+  margin-top: 6px;
+}
+.landing-hero__cta {
+  height: 48px;
+  justify-content: center;
+  padding: 0 24px;
+  border-radius: 9999px;
+  font-size: 16px;
+  font-weight: 500;
+}
+.landing-hero__link {
+  display: inline-flex;
+  height: 48px;
+  align-items: center;
+  padding: 0 22px;
+  border: 1px solid var(--landing-line);
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--background) 62%, transparent);
+  color: var(--foreground);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1;
+  text-decoration: none;
+  transition:
+    border-color 140ms ease,
+    background-color 140ms ease;
+}
+.landing-hero__link:hover {
+  border-color: color-mix(in srgb, var(--foreground) 32%, transparent);
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--foreground) 6%, var(--background));
+}
+.landing-hero__link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ---- Bands --------------------------------------------------------------- */
+
+/* A band states its idea once, in a heading of six words or fewer. */
+.landing-band__heading,
+.landing-close__heading {
+  margin: 0;
+  font-size: clamp(1.25rem, 2.4vw, 1.75rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.landing-band__lead {
+  max-width: 40rem;
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+/* A band whose rows carry their own padding and close on the band's own line
+   pays no bottom padding of its own. */
+.landing-band--cells {
+  padding-bottom: 0;
+}
+
+/* A chip is the reference's dashed tag: a hairline box at the six-pixel
+   corner, nothing behind it, the label in the page's own ink and its mark
+   sixteen pixels ahead of it. It is the same box the tool marquee runs on, so
+   the two bands read as one wall of names. */
+.landing-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 22px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.landing-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  border: 1px dashed var(--landing-line);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--foreground);
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+/* The mark is the product's, at chip size: the agents wear the avatar the
+   activity rail already draws for them, the rest are inline glyphs that take
+   the chip's own colour. */
+.landing-chip__mark {
+  display: grid;
+  width: 16px;
+  height: 16px;
+  flex: none;
+  place-items: center;
+  color: var(--muted);
+}
+.landing-chip__bloub .activity-bloub {
+  width: 16px;
+  height: 16px;
+  /* Codex is very nearly the dark theme's own ground, so the mark states its
+     own edge rather than relying on the chip behind it. */
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--foreground) 18%, transparent);
+}
+
+/* The closing block is a cell row like the plan cards in the reference: the
+   band gives up its own padding, the row runs rail to rail, and the words and
+   the way in are two fields of it with a solid line and a pair of markers
+   between them. */
+.landing-close {
+  padding: 0;
+}
+.landing-close__cells {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+}
+.landing-close__text {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  padding: 32px;
+}
+.landing-close__act {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  border-inline-start: 1px solid var(--landing-line);
+}
+.landing-close__privacy {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* ---- Phone --------------------------------------------------------------- */
+
+/* There is no room for rails beside the column, so the frame becomes the
+   section lines alone and the cells stack. */
+@media (max-width: 719px) {
+  .landing {
+    --landing-gutter: 20px;
+    --showcase-top: 36px;
+  }
+  .landing-rails,
+  .landing-divider-marks,
+  .landing-column::before,
+  .landing-column::after,
+  .landing-section::before,
+  .landing-section::after {
+    display: none;
+  }
+  .landing-section {
+    padding-top: 36px;
+    padding-bottom: 36px;
+  }
+  .landing-section--flush {
+    padding: var(--showcase-top) 0 0;
+  }
+  /* A band whose rows carry their own padding does not pay the section's as
+     well: the stacked cells run to the band's closing line, as they do at
+     every other width. */
+  .landing-band--cells {
+    padding-bottom: 0;
+  }
+  .landing-close {
+    padding: 0;
+  }
+  .landing-hero {
+    padding: 28px 16px;
+  }
+  .landing-hero__panel {
+    min-height: 420px;
+    padding: 36px 20px;
+  }
+  /* The grid stacks, and the line that divided the columns becomes the one
+     between the rows. */
+  .landing-close__cells {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .landing-close__text,
+  .landing-close__act {
+    padding: 24px var(--landing-gutter);
+  }
+  .landing-close__act {
+    border-inline-start: 0;
+    border-top: 1px solid var(--landing-line);
+  }
+  .landing-hero__body {
+    width: 100%;
+  }
+  /* The two actions stack, and each takes the row rather than sitting half of
+     it: a 48px pill next to a 48px button at 350px wide leaves neither room
+     for its label. */
+  .landing-hero__actions {
+    width: 100%;
+    min-width: 0;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .landing-hero__cta,
+  .landing-hero__link {
+    width: 100%;
+    justify-content: center;
+  }
+  .landing-close__act .landing-cta {
+    width: 100%;
+  }
+}
+
+/* ---- Reduced motion ------------------------------------------------------ */
+
+@media (prefers-reduced-motion: no-preference) {
+  .landing-hero__word,
+  .landing-hero__lead,
+  .landing-hero__rows > *,
+  .landing-hero__actions > * {
+    animation: landing-hero-in 620ms cubic-bezier(0.25, 0.1, 0.25, 1) backwards;
+  }
+  .landing-hero__word {
+    animation-delay: calc(160ms + var(--word-i, 0) * 55ms);
+  }
+  .landing-hero__lead,
+  .landing-hero__rows > *,
+  .landing-hero__actions > * {
+    --hero-in-blur: 6px;
+    animation-duration: 460ms;
+  }
+  .landing-hero__lead {
+    animation-delay: 440ms;
+  }
+  .landing-hero__rows > * {
+    animation-delay: calc(500ms + var(--row-i, 0) * 45ms);
+  }
+  .landing-hero__actions > :first-child {
+    animation-delay: 650ms;
+  }
+  .landing-hero__actions > :last-child {
+    animation-delay: 700ms;
+  }
+}
+
+/* Automatic activity, drawn rather than read. Known statuses use the shared
+   board mark above; this neutral fallback is only for an unrecognised value in
+   old activity text. A commit is somewhere to go, so it looks like a link. */
+.activity-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.activity-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+  border: 1px solid transparent;
+}
+.activity-kind {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 6px;
+  padding: 1px 7px;
+  border: 1px solid
+    color-mix(in srgb, var(--activity-kind-color) 34%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--activity-kind-color) 14%, transparent);
+  color: var(--activity-kind-color);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.6;
+  vertical-align: middle;
+}
+.activity-kind[data-kind="change"] {
+  --activity-kind-color: var(--activity-change);
+}
+.activity-kind[data-kind="discovery"] {
+  --activity-kind-color: var(--activity-discovery);
+}
+.activity-kind[data-kind="decision"] {
+  --activity-kind-color: var(--activity-decision);
+}
+.activity-kind[data-kind="verification"] {
+  --activity-kind-color: var(--activity-verification);
+}
+.activity-kind[data-kind="blocker"] {
+  --activity-kind-color: var(--activity-blocker);
+}
+.activity-kind[data-kind="review"] {
+  --activity-kind-color: var(--activity-review);
+  border-color: color-mix(in srgb, var(--activity-review) 55%, transparent);
+  background: color-mix(in srgb, var(--activity-review) 20%, transparent);
+}
+.activity-kind__to {
+  margin-left: 4px;
+  opacity: 0.75;
+}
+.activity-facts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+}
+.activity-commit {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 1px 8px 1px 6px;
+  border-radius: 6px;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 10px;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+}
+a.activity-commit:hover {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+}
+/* The same commit pill on a whiteboard card, at the height of the chips
+   beside it so the footer's row lines up. */
+.activity-commit--node {
+  height: 20px;
+  padding: 0 8px 0 7px;
+  border-radius: 999px;
+  font-size: 11px;
+  line-height: 1;
+  white-space: nowrap;
+}
+.activity-commit--node svg {
+  flex: none;
+}
+/* An unlinked commit has nowhere to go, so it stops looking like a link. */
+.activity-commit--gone {
+  color: var(--muted);
+  background: color-mix(in srgb, var(--muted) 10%, transparent);
+  border-color: color-mix(in srgb, var(--muted) 26%, transparent);
+  text-decoration: line-through;
+}
+
+/* The selection bar. Same dock shell as the canvas controls, stacked directly
+   above them, so it reads as a second set of controls rather than a dialog and
+   never sits over a card. */
+.canvas-bottom-dock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.selection-bar {
+  flex-direction: row;
+}
+.selection-bar__count {
+  padding: 0 6px 0 10px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.selection-bar__delete {
+  color: var(--danger);
+}
+.selection-bar__delete:hover {
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+}
+
+/* Shortcut lists keep one line per gesture, with the key first so modifiers
+   line up down the left edge. */
+.board-shortcuts {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  font-size: 11px;
+  color: var(--muted);
+  text-align: left;
+}
+.board-shortcuts > span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+/* Keep the dock as a positioning context for its in-canvas hints. */
+.workspace-canvas-tools {
+  position: relative;
+}
+
+.modal__body.task-inspector__body {
+  overflow: hidden;
+}
+.task-inspector__scroll {
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+.task-inspector__scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.workspace-kind {
+  min-width: 0;
+  flex-shrink: 0;
+  gap: 10px;
+}
+.workspace-kind__heading {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+.workspace-kind__options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.workspace-kind__option {
+  min-width: 0;
+  margin: 0;
+}
+/* A kind card is mostly its illustration. The card lifts a little when it is
+   pointed at and a little more once it is chosen, where it also takes a soft
+   accent ring — the lift is what makes the two feel like objects to pick
+   between rather than two rows of a form. */
+.workspace-kind__card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.workspace-kind__card[data-hovered="true"] {
+  background: var(--surface-hovered);
+  transform: translateY(-2px);
+}
+.workspace-kind__card[data-selected="true"] {
+  border-color: color-mix(in oklab, var(--accent) 70%, transparent);
+  background: color-mix(in oklab, var(--accent) 7%, var(--surface));
+  transform: translateY(-3px);
+  box-shadow:
+    0 0 0 3px color-mix(in oklab, var(--accent) 18%, transparent),
+    0 10px 24px -14px color-mix(in oklab, var(--foreground) 55%, transparent);
+}
+.workspace-kind__card[data-focus-visible="true"] {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .workspace-kind__card,
+  .workspace-kind__card[data-hovered="true"],
+  .workspace-kind__card[data-selected="true"] {
+    transform: none;
+    transition: none;
+  }
+}
+/* The illustration's own stage: a quiet inset that the drawing sits in, tinted
+   by the accent once the card is chosen. Hovering or choosing a card is also
+   what starts the drawing — see workspace-kind-art.css. */
+.workspace-kind__stage {
+  display: grid;
+  place-items: center;
+  padding: 6px 4px;
+  border-radius: 10px;
+  background: color-mix(in oklab, var(--foreground) 3%, transparent);
+  transition: background-color 180ms ease;
+}
+.workspace-kind__card[data-selected="true"] .workspace-kind__stage {
+  background: color-mix(in oklab, var(--accent) 9%, transparent);
+}
+.workspace-kind__card[data-hovered="true"] .wk-art,
+.workspace-kind__card[data-selected="true"] .wk-art,
+.workspace-kind__card[data-focus-visible="true"] .wk-art {
+  --wk-run: running;
+}
+.workspace-kind__title {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+.workspace-kind__title > span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.workspace-kind__indicator {
+  flex-shrink: 0;
+  margin-inline-start: auto;
+}
+/* HeroUI draws the dot's ring only once the control is pointed at; on a card
+   this big the radio has to be visible at rest too, or the pair does not read
+   as a choice. */
+.workspace-kind__card .workspace-kind__indicator {
+  box-shadow: inset 0 0 0 1px
+    color-mix(in oklab, var(--foreground) 24%, transparent);
+}
+.workspace-kind__card[data-selected="true"] .workspace-kind__indicator {
+  box-shadow: none;
+}
+.workspace-kind__description {
+  display: -webkit-box;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--muted);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+}
+.workspace-kind--compact {
+  gap: 6px;
+}
+.workspace-kind--compact .workspace-kind__options {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2px;
+  width: min(100%, 260px);
+  height: 34px;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+}
+.workspace-kind__segment {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 10px;
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
+}
+.workspace-kind__segment[data-hovered="true"] {
+  background: var(--surface-hovered);
+}
+.workspace-kind__segment[data-selected="true"] {
+  background: color-mix(in oklab, var(--accent) 14%, var(--surface));
+  color: var(--accent);
+}
+.workspace-kind__segment[data-focus-visible="true"] {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.workspace-kind__segment-control {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.workspace-kind__segment-icon {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+}
+.workspace-kind__current-description {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.workspace-kind__label {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+.workspace-kind__reveal {
+  animation: workspace-kind-reveal 160ms ease-out;
+}
+@keyframes workspace-kind-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .workspace-kind__reveal {
+    animation: none;
+  }
+}
+@media (max-width: 420px) {
+  .workspace-kind--cards .workspace-kind__options {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+/* React Flow lifts a selected node to z-index 1000, and the bloub sits at the
+   card's top corner, so at 8 the card slid over it the moment it was picked. */
+.agent-bloubs {
+  position: absolute;
+  inset: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 1001;
+}
+.agent-bloub {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  will-change: transform;
+}
+.agent-bloub .activity-bloub {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--surface) 80%, transparent),
+    0 4px 10px rgb(0 0 0 / 0.22);
+}
+/* The same green arc that circles a working agent in the crew: one look
+   for "working" wherever an agent is drawn. */
+.agent-bloub__pulse {
+  position: absolute;
+  inset: -3px;
+  border-radius: 999px;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0 55%,
+    color-mix(in srgb, var(--success) 85%, transparent) 100%
+  );
+  -webkit-mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - 2px),
+    #000 calc(100% - 1.5px)
+  );
+  mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - 2px),
+    #000 calc(100% - 1.5px)
+  );
+  animation: agent-bloub-orbit 1.8s linear infinite;
+}
+.agent-bloub:not(.agent-bloub--ghost) .activity-bloub {
+  animation: agent-bloub-bob 2.6s ease-in-out infinite;
+}
+@keyframes agent-bloub-orbit {
+  to {
+    transform: rotate(1turn);
+  }
+}
+@keyframes agent-bloub-bob {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -1.5px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .agent-bloub__pulse,
+  .agent-bloub .activity-bloub {
+    animation: none;
+  }
+}
+.task-card[data-droppable] {
+  transition:
+    box-shadow 140ms ease,
+    transform 140ms ease;
+}
+.task-card[data-over] {
+  transform: translateY(-2px);
+  box-shadow:
+    0 0 0 2px var(--accent),
+    0 12px 28px rgb(0 0 0 / 0.2);
+}
+.agent-bloub--ghost {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.agent-bloub--ghost .activity-bloub {
+  opacity: 0.55;
+  box-shadow: none;
+  outline: 1.5px dashed color-mix(in srgb, var(--accent) 70%, transparent);
+  outline-offset: 3px;
+  transition: opacity 140ms ease;
+}
+.agent-bloub--ghost:hover .activity-bloub {
+  opacity: 0.85;
+}
+.agent-bloub--ghost:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 999px;
+}
+.commit-merge {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+}
+.commit-merge__button {
+  height: 24px;
+  padding-inline: 10px;
+  font-size: 11px;
+}
+.commit-merge__compare {
+  flex: none;
+  white-space: nowrap;
+}
