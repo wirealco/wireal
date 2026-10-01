@@ -7,7 +7,13 @@
  *  Nothing here runs an animation loop in JavaScript. The feed and the tool
  *  marquee are CSS animations; the only script is one IntersectionObserver
  *  that marks a block revealed exactly once. */
-import { useLayoutEffect, type CSSProperties, type RefObject } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useState,
+  type CSSProperties,
+  type RefObject,
+} from "react";
 import { Avatar, Card, Typography } from "@heroui/react";
 import { useTranslation } from "react-i18next";
 import { ActivityBloub } from "./ActivityBloub";
@@ -15,6 +21,7 @@ import { Lock, Mail, Person, UserCog } from "./icons";
 import { WorkspaceKindArt } from "./workspace-kind-art";
 import { LabelBadge, StatusChip } from "./ui";
 import { mcpHost } from "./mcp-endpoint";
+import { taskIdLabel } from "./domain";
 import type { ActivityAgentBrand } from "./activity-author";
 import "./landing-sections.css";
 
@@ -198,7 +205,7 @@ export function TeamSection() {
                   color="muted"
                   className="truncate font-mono"
                 >
-                  #4
+                  {taskIdLabel("4")}
                 </Typography>
               </div>
             </Card.Header>
@@ -340,32 +347,191 @@ export const mcpToolNames = [
   "add_task_activity",
   "propose_task",
   "working_on",
+  "runner",
 ] as const;
 
 /* The section reads the way the tools it names are used: a command you paste,
-   and the runner answering in the same window. The lines are the runner's own
-   screen, not a drawing of one. */
-const terminal: { tone: string; text: string }[] = [
-  { tone: "command", text: "claude mcp add --transport http wireal" },
-  { tone: "muted", text: "Added HTTP MCP server wireal" },
-  { tone: "command", text: "wireal-run run" },
-  { tone: "dim", text: "Runner: Studio   Host: mac-studio   Mode: automatic" },
-  { tone: "dim", text: "Workspace: Wireal   Working: 2/3   Spent: $4.12" },
-  { tone: "blank", text: "" },
-  { tone: "head", text: "agent   task                        state     model" },
-  {
-    tone: "good",
-    text: "sol     41 A finished task lets go…   working   opus",
-  },
-  {
-    tone: "good",
-    text: "pepper  38 A changelog page stands…   working   gpt-5.6",
-  },
-  { tone: "dim", text: "juno                                idle      sonnet" },
+   then the runner's own screen answering in the same window, drawn the way
+   wireal-run draws it: a frame, each CLI's usage, the agents with a spinner
+   and a clock, and a feed of what just happened. */
+type Tone =
+  | "frame"
+  | "dim"
+  | "bright"
+  | "good"
+  | "warn"
+  | "accent"
+  | "claude"
+  | "codex"
+  | "command";
+type Segment = [string, Tone?] | ["spin", "spin"] | ["clock", "clock", number];
+const screenWidth = 52;
+const spinFrames = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏";
+
+function segmentText(segment: Segment, now: number): string {
+  if (segment[1] === "spin") return spinFrames[Math.floor(now / 90) % 10];
+  if (segment[1] === "clock") {
+    const total = Math.floor((segment[2] as number) + now / 1000);
+    return `${Math.floor(total / 60)}m ${String(total % 60).padStart(2, "0")}s`;
+  }
+  return segment[0];
+}
+
+function bar(percent: number, width = 10): Segment[] {
+  const filled = Math.round((percent / 100) * width);
+  const tone: Tone = percent < 60 ? "good" : "warn";
+  return [
+    ["█".repeat(filled), tone],
+    ["█".repeat(width - filled), "frame"],
+    [` ${String(percent).padStart(3)}%`, tone],
+  ];
+}
+
+const ruled = (left: string, title: Segment[], right: string): Segment[] => {
+  const used = title.reduce((sum, part) => sum + part[0].length, 0);
+  return [
+    [`${left}─ `, "frame"],
+    ...title,
+    [` ${"─".repeat(Math.max(0, screenWidth - used - 4))}${right}`, "frame"],
+  ];
+};
+
+const screenRows: Segment[][] = [
+  [
+    ["$ ", "command"],
+    ["claude mcp add --transport http wireal", "bright"],
+  ],
+  [["Added HTTP MCP server wireal", "dim"]],
+  [
+    ["$ ", "command"],
+    ["wireal-run run", "bright"],
+  ],
+  ruled(
+    "╭",
+    [
+      ["wireal-run · ", "dim"],
+      ["Studio", "bright"],
+      ["   Wireal · ", "dim"],
+      ["● live", "good"],
+    ],
+    "╮",
+  ),
+  [
+    ["Claude", "claude"],
+    ["  5h ", "dim"],
+    ...bar(31),
+    ["  week ", "dim"],
+    ...bar(71),
+  ],
+  [
+    ["Codex ", "codex"],
+    ["  5h ", "dim"],
+    ...bar(12),
+    ["  week ", "dim"],
+    ...bar(27),
+  ],
+  ruled(
+    "├",
+    [
+      ["agents · ", "dim"],
+      ["2 of 3 working", "good"],
+    ],
+    "┤",
+  ),
+  [
+    ["1 ", "accent"],
+    ["spin", "spin"],
+    [" Sol    ", "bright"],
+    ["claude ", "claude"],
+    ["WRL·41 Settle refunds ", "accent"],
+    ["clock", "clock", 252],
+  ],
+  [
+    ["2 ", "accent"],
+    ["spin", "spin"],
+    [" Pepper ", "bright"],
+    ["codex  ", "codex"],
+    ["WRL·38 Changelog page ", "accent"],
+    ["clock", "clock", 65],
+  ],
+  [
+    ["3 ", "dim"],
+    ["◌", "dim"],
+    [" Juno   ", "dim"],
+    ["claude ", "claude"],
+    ["idle · waiting for a task", "dim"],
+  ],
+  ruled("├", [["feed", "dim"]], "┤"),
+  [
+    ["18:42  ", "dim"],
+    ["✓", "good"],
+    [" 40 merged into main  a3f19c2", "bright"],
+  ],
+  [
+    ["18:44  ", "dim"],
+    ["·", "dim"],
+    [" Sol claimed WRL·41", "bright"],
+  ],
+  ruled(
+    "╰",
+    [
+      ["+", "bright"],
+      [" add  ", "dim"],
+      ["-", "bright"],
+      [" remove  ", "dim"],
+      ["1-9", "bright"],
+      [" attach  ", "dim"],
+      ["q", "bright"],
+      [" quit", "dim"],
+    ],
+    "╯",
+  ),
 ];
+
+/** One row of the screen. Rows inside the frame are boxed with │ and padded
+ *  to its width, so the columns line up however the clocks tick. */
+function ScreenRow({ row, now }: { row: Segment[]; now: number }) {
+  const outside = row[0][1] === "command" || /^[╭├╰]/.test(row[0][0]);
+  const said = row.length === 1;
+  const boxed = !outside && !said;
+  const length = row.reduce(
+    (sum, segment) => sum + segmentText(segment, now).length,
+    0,
+  );
+  return (
+    <span className="landing-terminal__line">
+      {boxed && <span data-tone="frame">│ </span>}
+      {row.map((segment, index) => (
+        <span key={index} data-tone={segment[1]}>
+          {segmentText(segment, now)}
+        </span>
+      ))}
+      {boxed && (
+        <span data-tone="frame">
+          {" ".repeat(Math.max(0, screenWidth - 2 - length))}│
+        </span>
+      )}
+    </span>
+  );
+}
+
+function useTicking(every: number) {
+  const [now, setNow] = useState(() => Date.now() - pageStart);
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const timer = window.setInterval(
+      () => setNow(Date.now() - pageStart),
+      every,
+    );
+    return () => window.clearInterval(timer);
+  }, [every]);
+  return now;
+}
+const pageStart = Date.now();
 
 export function McpSection() {
   const { t } = useTranslation();
+  const now = useTicking(90);
   return (
     <section
       id="tools"
@@ -425,18 +591,9 @@ export function McpSection() {
             </span>
             <span className="landing-terminal__title">wireal-run — zsh</span>
           </div>
-          <pre className="landing-terminal__body">
-            {terminal.map((line, index) => (
-              <span
-                className="landing-terminal__line"
-                data-tone={line.tone}
-                key={index}
-              >
-                {line.tone === "command" && (
-                  <span className="landing-terminal__prompt">$</span>
-                )}
-                {line.text || " "}
-              </span>
+          <pre className="landing-terminal__body" aria-hidden="true">
+            {screenRows.map((row, index) => (
+              <ScreenRow key={index} row={row} now={now} />
             ))}
           </pre>
         </div>

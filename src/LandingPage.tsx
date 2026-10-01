@@ -4,7 +4,14 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 import { localPreview } from "./backend";
 import { useOpenAuth } from "./auth-popup";
-import { ArrowRight, Display, GitBranch, History } from "./icons";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  Display,
+  GitBranch,
+  GitHubMark,
+  History,
+} from "./icons";
 import { AsciiFluid } from "./AsciiFluid";
 import { LandingHero } from "./LandingHero";
 import { LandingShowcase } from "./LandingShowcase";
@@ -23,7 +30,7 @@ import {
   GitHubBrandMark,
   McpClientMark,
 } from "./brand-marks";
-import { PublicFooter, PublicTopBar } from "./public-chrome";
+import { PublicFooter, PublicTopBar, sourceRepository } from "./public-chrome";
 import type { ResolvedTheme, ThemePreference } from "./theme";
 
 type LandingPageProps = {
@@ -167,28 +174,93 @@ export function LandingPage({ theme, onThemeChange }: LandingPageProps) {
         <WorkspaceKindsSection />
         <TeamSection />
 
+        {/* Open source is a reason to try it, so it has a band of its own:
+        the licence, the three commands that run it on your own server, the
+        code one press away, and the tools it already fits. */}
         <section
-          className="landing-section landing-band"
-          id="integrations"
+          className="landing-section landing-band landing-open"
+          id="open-source"
           data-tone="raise"
         >
-          <h2 className="landing-band__heading" data-reveal>
-            {t("landing.integrations.heading")}
-          </h2>
-          <ul
-            className="landing-chips"
-            data-reveal
-            style={{ "--reveal-i": 1 } as CSSProperties}
-          >
-            {integrationChips.map(({ key, mark: Mark }) => (
-              <li className="landing-chip" key={key}>
-                <span className="landing-chip__mark">
-                  <Mark />
-                </span>
-                {t(`landing.integrations.chips.${key}`)}
-              </li>
-            ))}
-          </ul>
+          <div className="landing-open__grid">
+            <div className="landing-open__copy">
+              <h2 className="landing-band__heading" data-reveal>
+                {t("landing.openSource.heading")}
+              </h2>
+              <p
+                className="landing-band__lead"
+                data-reveal
+                style={{ "--reveal-i": 1 } as CSSProperties}
+              >
+                {t("landing.openSource.lead")}
+              </p>
+              <div
+                className="landing-open__actions"
+                data-reveal
+                style={{ "--reveal-i": 2 } as CSSProperties}
+              >
+                <a
+                  className="button button--secondary landing-open__github"
+                  href={sourceRepository}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <GitHubMark size={16} />
+                  {t("landing.openSource.github")}
+                </a>
+                <a
+                  className="landing-open__guide"
+                  href={`${sourceRepository}#self-host-with-docker-compose`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {t("landing.openSource.guide")}
+                  <ArrowUpRight size={14} />
+                </a>
+              </div>
+              <span
+                className="landing-open__label"
+                data-reveal
+                style={{ "--reveal-i": 3 } as CSSProperties}
+              >
+                {t("landing.integrations.heading")}
+              </span>
+              <ul
+                className="landing-chips"
+                id="integrations"
+                data-reveal
+                style={{ "--reveal-i": 3 } as CSSProperties}
+              >
+                {integrationChips.map(({ key, mark: Mark }) => (
+                  <li className="landing-chip" key={key}>
+                    <span className="landing-chip__mark">
+                      <Mark />
+                    </span>
+                    {t(`landing.integrations.chips.${key}`)}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <pre
+              className="landing-open__code"
+              data-reveal
+              style={{ "--reveal-i": 2 } as CSSProperties}
+              aria-label={t("landing.openSource.codeLabel")}
+            >
+              <span data-tone="note"># {t("landing.openSource.codeNote")}</span>
+              {"\n"}
+              <span data-tone="prompt">$ </span>git clone {sourceRepository}.git
+              {"\n"}
+              <span data-tone="prompt">$ </span>cd wireal && cp .env.example
+              .env
+              {"\n"}
+              <span data-tone="prompt">$ </span>docker compose up -d
+              {"\n"}
+              <span data-tone="note">
+                # AGPL-3.0 · PostgreSQL · Caddy HTTPS
+              </span>
+            </pre>
+          </div>
         </section>
 
         <section className="landing-section landing-close" data-tone="stage">
@@ -214,6 +286,15 @@ export function LandingPage({ theme, onThemeChange }: LandingPageProps) {
               >
                 {t("landing.openWorkspace")} <ArrowRight size={16} />
               </Button>
+              <a
+                className="landing-close__source"
+                href={sourceRepository}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <GitHubMark size={14} />
+                {t("landing.openSource.orRead")}
+              </a>
             </div>
           </div>
         </section>

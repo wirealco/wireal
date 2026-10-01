@@ -288,8 +288,17 @@ const resources = {
           },
           secondary: "Look inside",
         },
+        openSource: {
+          heading: "Open source, yours to run",
+          lead: "Wireal is AGPL-3.0. Use it here at wireal.co, or run the whole of it, board, API and MCP server, on a machine of your own.",
+          github: "View on GitHub",
+          guide: "Self-hosting guide",
+          codeLabel: "The commands that run Wireal on your own server",
+          codeNote: "on any Linux server with Docker",
+          orRead: "or read the code",
+        },
         integrations: {
-          heading: "Fits the tools you run",
+          heading: "Works with",
           chips: {
             claudeCode: "Claude Code",
             codex: "Codex",
@@ -358,6 +367,7 @@ const resources = {
         showcase: landingShowcaseCopy.en,
       },
       public: {
+        github: "Wireal on GitHub",
         home: "Wireal home",
         docs: "Docs",
         changelog: "Changelog",
@@ -374,7 +384,7 @@ const resources = {
             lines: "How a line works",
             team: "Work as a team",
             workspaces: "Two kinds of workspace",
-            integrations: "Integrations",
+            integrations: "Open source",
             tools: "Tools",
             openWorkspace: "Open your workspace",
             createAccount: "Create an account",

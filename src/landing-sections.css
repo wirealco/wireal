@@ -556,23 +556,36 @@
   color: #fff;
   white-space: pre;
 }
-.landing-terminal__line[data-tone="command"] {
-  color: #fff;
-  font-weight: 600;
+/* The runner's own colours: the frame and labels dim, figures bright, each
+   CLI in its brand colour, usage green or amber by how full it is. */
+.landing-terminal__line [data-tone="frame"] {
+  color: rgb(255 255 255 / 0.22);
 }
-.landing-terminal__line[data-tone="muted"],
-.landing-terminal__line[data-tone="dim"] {
-  color: rgb(255 255 255 / 0.72);
-}
-.landing-terminal__line[data-tone="head"] {
+.landing-terminal__line [data-tone="dim"] {
   color: rgb(255 255 255 / 0.55);
 }
-.landing-terminal__line[data-tone="good"] {
+.landing-terminal__line [data-tone="bright"] {
+  color: #fff;
+}
+.landing-terminal__line [data-tone="command"] {
+  color: #f59e0b;
+}
+.landing-terminal__line [data-tone="good"] {
   color: #5ef08a;
 }
-.landing-terminal__prompt {
-  margin-inline-end: 8px;
-  color: #f59e0b;
+.landing-terminal__line [data-tone="warn"] {
+  color: #fbbf24;
+}
+.landing-terminal__line [data-tone="accent"],
+.landing-terminal__line [data-tone="spin"],
+.landing-terminal__line [data-tone="clock"] {
+  color: #7cc4ff;
+}
+.landing-terminal__line [data-tone="claude"] {
+  color: #f0a27f;
+}
+.landing-terminal__line [data-tone="codex"] {
+  color: #c7c9d1;
 }
 
 /* ---- Narrow -------------------------------------------------------------- */
@@ -627,7 +640,101 @@
     font-size: clamp(8px, 2.5vw, 12.5px);
     line-height: 1.75;
   }
-  .landing-terminal__prompt {
-    margin-inline-end: 6px;
+}
+
+/* ---- Open source --------------------------------------------------------- */
+
+.landing-open__grid {
+  display: grid;
+  align-items: center;
+  gap: 40px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+.landing-open__copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+.landing-open__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin-top: 22px;
+}
+.landing-open__github {
+  gap: 8px;
+  text-decoration: none;
+}
+.landing-open__guide {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 14px;
+  text-decoration: none;
+}
+.landing-open__guide:hover {
+  color: var(--foreground);
+}
+.landing-open__label {
+  margin-top: 32px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.landing-open #integrations {
+  margin-top: 10px;
+  scroll-margin-top: 96px;
+}
+.landing-open__code {
+  min-width: 0;
+  overflow-x: auto;
+  margin: 0;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: #000;
+  padding: 20px 18px;
+  color: #fff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+  line-height: 26px;
+  white-space: pre;
+  box-shadow:
+    0 1px 0 0 rgb(255 255 255 / 0.06) inset,
+    0 24px 60px rgb(0 0 0 / 0.22);
+}
+[data-theme="dark"] .landing-open__code {
+  border-color: rgb(255 255 255 / 0.14);
+}
+.landing-open__code [data-tone="prompt"] {
+  color: #f59e0b;
+}
+.landing-open__code [data-tone="note"] {
+  color: rgb(255 255 255 / 0.45);
+}
+@media (max-width: 1023px) {
+  .landing-open__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
   }
+  .landing-open__code {
+    padding: 16px 14px;
+    font-size: clamp(9px, 2.5vw, 13px);
+    line-height: 22px;
+  }
+}
+
+/* The closing call keeps a quiet second way in: the code itself. */
+.landing-close__source {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 13px;
+  text-decoration: none;
+}
+.landing-close__source:hover {
+  color: var(--foreground);
 }

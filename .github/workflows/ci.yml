@@ -1,0 +1,159 @@
+name: CI
+
+# Checks only, on GitHub's own runners: nothing here deploys, and nothing
+# runs on a machine of ours, so a pull request from anyone is safe to check.
+# Cloudflare Workers Builds deploys the web app and MCP server; the hosted
+# API is deployed by hand. Nothing is uploaded.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+# No workflow-level group: each job collapses on its own group instead.
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    # A manual run has nothing to compare against, so it asks for everything.
+    outputs:
+      app: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.app == 'true' }}
+      runner: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.runner == 'true' }}
+      backend: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.backend == 'true' }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dorny/paths-filter@v3
+        id: filter
+        if: github.event_name != 'workflow_dispatch'
+        with:
+          filters: |
+            app:
+              - '.github/workflows/**'
+              - 'src/**'
+              - 'worker/**'
+              - 'mcp/**'
+              - 'runner/**'
+              - 'public/**'
+              - 'scripts/**'
+              - 'index.html'
+              - 'vite.config.ts'
+              - 'tsconfig*.json'
+              - 'package.json'
+              - 'package-lock.json'
+            runner:
+              - '.github/workflows/**'
+              - 'runner/**'
+              - 'scripts/pack-runner.mjs'
+              - 'package.json'
+              - 'package-lock.json'
+            backend:
+              - '.github/workflows/**'
+              - 'backend/**'
+
+  verify:
+    needs: changes
+    if: needs.changes.outputs.app == 'true'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: verify-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm test
+
+      # With no variables set the build defaults to the production API origin; nothing built here is deployed (Workers Builds deploys the frontend).
+      - run: npm run build
+
+  runner-windows:
+    needs: changes
+    if: needs.changes.outputs.runner == 'true'
+    runs-on: windows-latest
+    concurrency:
+      group: runner-windows-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Ubuntu already ran the whole suite. What Windows is here for is the
+      # runner's own tests, which spawn through cmd.exe and build paths, and
+      # the packed binary below.
+      - run: npm run test:runner
+
+      # The published runner resolves its hooks beside the bundle and spawns
+      # agents through cmd.exe, so pack it and drive the real binary here.
+      - run: npm run pack:runner
+
+      - name: Install the packed runner the way a user would
+        run: |
+          $version = node -p "require('./dist-runner/package.json').version"
+          npm pack ./dist-runner --pack-destination "$env:RUNNER_TEMP"
+          npm install -g "$env:RUNNER_TEMP/wireal-run-$version.tgz"
+
+      - name: Smoke the installed binary
+        run: |
+          wireal-run --help
+          $hooks = Join-Path (npm root -g) "wireal-run/hooks/permission.cjs"
+          if (-not (Test-Path $hooks)) {
+            throw "the runner shipped without the hooks it resolves beside its bundle"
+          }
+
+  backend:
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: backend-${{ github.ref }}
+      cancel-in-progress: true
+    # The tests run against a real PostgreSQL: each test creates its own
+    # database here through the migrations and drops it afterwards.
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      WIREAL_TEST_POSTGRES: Host=localhost;Port=5432;Username=postgres;Password=postgres
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: backend/global.json
+      # Caches the solution's NuGet packages, the win-x64 runtime packs the
+      # publish step needs, and the dotnet-ef tool from the tools manifest.
+      - uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('backend/**/*.csproj', 'backend/global.json', 'backend/.config/dotnet-tools.json') }}
+          restore-keys: nuget-${{ runner.os }}-
+      - run: dotnet tool restore
+      - run: dotnet test Wireal.slnx --configuration Release
+      - run: dotnet ef migrations has-pending-model-changes --project Wireal.Api --context AppDbContext --configuration Release --no-build

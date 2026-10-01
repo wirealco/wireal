@@ -721,3 +721,27 @@
   letter-spacing: 0.01em;
   line-height: 1.4;
 }
+
+/* The source link: the mark and "GitHub" on a wide header, the mark alone on
+   a phone, where the header keeps room for the way in. */
+.public-github {
+  gap: 6px;
+  padding-inline: 10px;
+  text-decoration: none;
+}
+@media (max-width: 599px) {
+  .public-github {
+    width: 32px;
+    padding-inline: 0;
+  }
+  .public-github__label {
+    display: none;
+  }
+}
+/* On the narrowest phones the header holds the mark, Docs, the source link,
+   the theme and the way in; the changelog stays a tap away in the footer. */
+@media (max-width: 429px) {
+  .landing-header .public-header__link[href="/changelog"] {
+    display: none;
+  }
+}

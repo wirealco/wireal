@@ -457,15 +457,21 @@ test("automatic layout brings a subtask alongside the parent it hangs from", () 
   assert.equal(at("parent").position.y, at("child").position.y);
 });
 test("automatic layout leaves room under a card it was never given a height for", () => {
-  const tasks = ["tall", "unknown", "short"].map((id, index) => ({
+  // One task the other three wait on, so they stack in one column.
+  const tasks = ["root", "tall", "unknown", "short"].map((id, index) => ({
     ...seed.tasks[0],
     id,
     referenceId: String(index + 1),
     parentId: null,
     position: { x: 0, y: index * 200 },
   }));
+  const links = ["tall", "unknown", "short"].map((target) => ({
+    id: `root-${target}`,
+    source: "root",
+    target,
+  }));
   const arranged = arrangeWorkspace(
-    { ...seed, tasks, links: [] },
+    { ...seed, tasks, links },
     new Map([
       ["tall", 320],
       ["short", 96],

@@ -55,6 +55,26 @@ export function ThemeButton({
   );
 }
 
+/** Where the code lives: Wireal is open source, so the way to it sits in the
+ *  header beside the theme switch on every public page. */
+export const sourceRepository = "https://github.com/wirealco/wireal";
+
+export function GitHubButton() {
+  const { t } = useTranslation();
+  return (
+    <a
+      className="button button--sm button--tertiary public-github"
+      href={sourceRepository}
+      target="_blank"
+      rel="noreferrer"
+      aria-label={t("public.github")}
+    >
+      <GitHubMark size={16} />
+      <span className="public-github__label">GitHub</span>
+    </a>
+  );
+}
+
 type HeaderLink = { href: string; label: string };
 
 function HeaderNav({ links }: { links: HeaderLink[] }) {
@@ -164,6 +184,7 @@ export function PublicHeader({
         )}
       </div>
       <div className="public-header__actions flex items-center gap-2">
+        <GitHubButton />
         <ThemeButton theme={theme} onThemeChange={onThemeChange} />
       </div>
     </div>
@@ -197,6 +218,7 @@ export function PublicTopBar({
         />
       </div>
       <div className="landing-header__actions">
+        <GitHubButton />
         <ThemeButton theme={theme} onThemeChange={onThemeChange} />
         <Button
           className="landing-cta"
@@ -240,7 +262,7 @@ const footerGroups: FooterGroup[] = [
       { label: "tools", href: "/#tools" },
       { label: "workspaces", href: "/#workspaces" },
       { label: "team", href: "/#team" },
-      { label: "integrations", href: "/#integrations" },
+      { label: "integrations", href: "/#open-source" },
     ],
   },
   {
@@ -274,7 +296,7 @@ const footerGroups: FooterGroup[] = [
     links: [
       {
         label: "github",
-        href: "https://github.com/wirealco/wireal",
+        href: sourceRepository,
         icon: GitHubMark,
         external: true,
       },
