@@ -6,6 +6,8 @@ claims what is ready and works each task with Claude Code or the Codex CLI on a
 branch of its own, reporting back on the card. People in their own Claude Code
 or Codex session join the same board through the Wireal MCP server.
 
+Status: [![CI](https://github.com/wirealco/wireal/actions/workflows/ci.yml/badge.svg)](https://github.com/wirealco/wireal/actions/workflows/ci.yml)
+
 | Piece      | Where             | What it is                                                    |
 | ---------- | ----------------- | ------------------------------------------------------------- |
 | API        | `backend/`        | ASP.NET Core (.NET 10) on PostgreSQL (the only supported DB). |
